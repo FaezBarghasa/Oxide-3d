@@ -1,6 +1,5 @@
 //! Oxide-3D Compute scheduler, background CPU thread pools, and asynchronous task execution.
 
-use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::info;
 
@@ -18,7 +17,7 @@ pub enum JobPriority {
 /// Compute engine task manager.
 #[derive(Clone)]
 pub struct ComputeScheduler {
-    sender: mpsc::UnboundedSender<String>,
+    _sender: mpsc::UnboundedSender<String>,
 }
 
 impl std::fmt::Debug for ComputeScheduler {
@@ -37,7 +36,7 @@ impl ComputeScheduler {
                 info!(job, "Processing background compute job");
             }
         });
-        Self { sender }
+        Self { _sender: sender }
     }
 
     /// Submit a task to the Rayon CPU thread pool.

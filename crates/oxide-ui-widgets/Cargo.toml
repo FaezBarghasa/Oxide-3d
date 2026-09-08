@@ -15,6 +15,7 @@ oxide-scene.workspace = true
 iced.workspace = true
 slotmap.workspace = true
 smallvec.workspace = true
+serde.workspace = true
 tracing.workspace = true
 
 [lints]
