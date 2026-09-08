@@ -1,0 +1,29 @@
+[package]
+name = "oxide-compute-runtime"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+oxide-core.workspace = true
+oxide-hal.workspace = true
+oxide-kernels.workspace = true
+oxide-backend-cpu.workspace = true
+oxide-backend-wgpu.workspace = true
+oxide-backend-cuda.workspace = true
+oxide-backend-rocm.workspace = true
+oxide-backend-vulkan.workspace = true
+oxide-backend-metal.workspace = true
+oxide-backend-dx12.workspace = true
+oxide-backend-opencl.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+
+[lints]
+workspace = true

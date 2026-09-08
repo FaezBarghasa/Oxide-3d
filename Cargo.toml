@@ -50,6 +50,18 @@ oxide-script-python = { path = "crates/oxide-script-python" }
 oxide-script-rhai = { path = "crates/oxide-script-rhai" }
 oxide-plugins-wasm = { path = "crates/oxide-plugins-wasm" }
 oxide-compute = { path = "crates/oxide-compute" }
+oxide-compute-runtime = { path = "crates/oxide-compute-runtime" }
+oxide-hal = { path = "crates/oxide-hal" }
+oxide-backend-cpu = { path = "crates/oxide-backend-cpu" }
+oxide-backend-wgpu = { path = "crates/oxide-backend-wgpu" }
+oxide-backend-cuda = { path = "crates/oxide-backend-cuda" }
+oxide-backend-rocm = { path = "crates/oxide-backend-rocm" }
+oxide-backend-vulkan = { path = "crates/oxide-backend-vulkan" }
+oxide-backend-metal = { path = "crates/oxide-backend-metal" }
+oxide-backend-dx12 = { path = "crates/oxide-backend-dx12" }
+oxide-backend-opencl = { path = "crates/oxide-backend-opencl" }
+oxide-kernels = { path = "crates/oxide-kernels" }
+oxide-ffi-safe = { path = "crates/oxide-ffi-safe" }
 oxide-telemetry = { path = "crates/oxide-telemetry" }
 oxide-test-utils = { path = "crates/oxide-test-utils" }
 

@@ -2,7 +2,21 @@
 
 High-performance, GPU-accelerated, event-sourced engineering operating system built in modern Rust (2024 edition).
 
-## Architecture Overview
+## Heterogeneous Multi-Backend Compute Architecture
+
+Oxide-3D features a safe, asynchronous, capability-driven accelerator runtime (`oxide-compute-runtime` & `oxide-hal`):
+
+- **NVIDIA CUDA (`crates/oxide-backend-cuda`)**: cuBLAS, cuSPARSE, cuSOLVER, PTX acceleration with FP64 precision.
+- **AMD ROCm / HIP (`crates/oxide-backend-rocm`)**: rocBLAS, rocSPARSE, rocSOLVER, and HSACO kernels for AMD GPUs.
+- **Vulkan Compute (`crates/oxide-backend-vulkan`)**: Cross-platform explicit low-level compute via SPIR-V pipelines.
+- **Apple Metal (`crates/oxide-backend-metal`)**: Zero-copy unified memory compute for Apple Silicon / macOS.
+- **Direct3D 12 (`crates/oxide-backend-dx12`)**: DirectCompute pipeline support for Windows.
+- **OpenCL (`crates/oxide-backend-opencl`)**: Heterogeneous computing across legacy GPUs, DSPs, and FPGAs.
+- **WebGPU (`crates/oxide-backend-wgpu`)**: Portable cross-platform WGSL shader fallback.
+- **Host CPU (`crates/oxide-backend-cpu`)**: Rayon work-stealing parallelism + SIMD vectorization + `faer` matrix arithmetic.
+- **Safe FFI Boundary (`crates/oxide-ffi-safe`)**: All foreign driver interactions are strictly isolated behind safe Rust abstractions.
+
+## Core System Architecture
 
 - **UI Shell (`apps/oxide-desktop`, `crates/oxide-ui`, `crates/oxide-ui-widgets`)**: Non-blocking Iced MVU architecture with dockable workspaces and fuzzy command palette.
 - **Rendering (`crates/oxide-render`)**: `wgpu` viewport renderer with PBR, wireframe, technical hidden-line, simulation heatmaps, and GPU picking.
