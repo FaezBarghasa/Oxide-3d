@@ -1,0 +1,22 @@
+[package]
+name = "oxide-scene"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+oxide-core.workspace = true
+oxide-geo.workspace = true
+oxide-math.workspace = true
+slotmap.workspace = true
+glam.workspace = true
+nalgebra.workspace = true
+rayon.workspace = true
+rstar.workspace = true
+serde.workspace = true
+
+[lints]
+workspace = true

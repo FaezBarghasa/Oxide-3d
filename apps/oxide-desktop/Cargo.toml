@@ -1,0 +1,26 @@
+[package]
+name = "oxide-desktop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "oxide-desktop"
+path = "src/main.rs"
+
+[dependencies]
+oxide-core.workspace = true
+oxide-ui.workspace = true
+oxide-settings.workspace = true
+oxide-telemetry.workspace = true
+oxide-persist.workspace = true
+oxide-automation.workspace = true
+iced.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,23 @@
+[package]
+name = "oxide-ui"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+oxide-core.workspace = true
+oxide-ui-widgets.workspace = true
+oxide-automation.workspace = true
+oxide-settings.workspace = true
+iced.workspace = true
+rfd.workspace = true
+arboard.workspace = true
+directories.workspace = true
+nucleo.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,25 @@
+[package]
+name = "oxide-headless"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "oxide-headless"
+path = "src/main.rs"
+
+[dependencies]
+oxide-core.workspace = true
+oxide-automation.workspace = true
+oxide-geo-io.workspace = true
+oxide-sim-core.workspace = true
+oxide-plm.workspace = true
+clap.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true

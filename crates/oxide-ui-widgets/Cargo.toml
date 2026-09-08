@@ -1,0 +1,21 @@
+[package]
+name = "oxide-ui-widgets"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+oxide-core.workspace = true
+oxide-render.workspace = true
+oxide-nodes.workspace = true
+oxide-scene.workspace = true
+iced.workspace = true
+slotmap.workspace = true
+smallvec.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true

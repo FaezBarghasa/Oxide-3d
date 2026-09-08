@@ -1,0 +1,25 @@
+[package]
+name = "oxide-script-python"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+oxide-core.workspace = true
+oxide-automation.workspace = true
+oxide-geo.workspace = true
+oxide-scene.workspace = true
+pyo3 = { workspace = true, optional = true }
+serde.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+
+[features]
+default = []
+python-bindings = ["dep:pyo3"]
+
+[lints]
+workspace = true

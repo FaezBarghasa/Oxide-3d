@@ -1,0 +1,20 @@
+[package]
+name = "oxide-mech"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+oxide-core.workspace = true
+oxide-scene.workspace = true
+oxide-math.workspace = true
+rapier3d.workspace = true
+parry3d.workspace = true
+rayon.workspace = true
+serde.workspace = true
+
+[lints]
+workspace = true

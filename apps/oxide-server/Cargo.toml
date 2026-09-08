@@ -1,0 +1,23 @@
+[package]
+name = "oxide-server"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "oxide-server"
+path = "src/main.rs"
+
+[dependencies]
+oxide-core.workspace = true
+oxide-collab.workspace = true
+oxide-telemetry.workspace = true
+axum.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true

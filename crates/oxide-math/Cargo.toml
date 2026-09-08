@@ -1,0 +1,22 @@
+[package]
+name = "oxide-math"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+nalgebra.workspace = true
+glam.workspace = true
+approx.workspace = true
+robust.workspace = true
+num-traits.workspace = true
+num-rational.workspace = true
+num-bigint.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true
