@@ -11,6 +11,7 @@ repository.workspace = true
 oxide-core.workspace = true
 oxide-geo.workspace = true
 oxide-math.workspace = true
+faer.workspace = true
 rayon.workspace = true
 robust.workspace = true
 tracing.workspace = true

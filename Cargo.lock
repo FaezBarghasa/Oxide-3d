@@ -5189,6 +5189,7 @@ dependencies = [
 name = "oxide-geo"
 version = "0.1.0"
 dependencies = [
+ "glam 0.33.7",
  "indexmap",
  "nalgebra",
  "oxide-core",
@@ -5218,6 +5219,7 @@ dependencies = [
 name = "oxide-geo-ops"
 version = "0.1.0"
 dependencies = [
+ "faer",
  "oxide-core",
  "oxide-geo",
  "oxide-math",

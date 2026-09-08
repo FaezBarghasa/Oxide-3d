@@ -11,6 +11,7 @@ repository.workspace = true
 oxide-core.workspace = true
 oxide-math.workspace = true
 nalgebra.workspace = true
+glam.workspace = true
 slotmap.workspace = true
 smallvec.workspace = true
 indexmap.workspace = true
