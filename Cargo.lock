@@ -4797,12 +4797,15 @@ name = "oxide-compute"
 version = "0.1.0"
 dependencies = [
  "async-channel",
+ "bytemuck",
  "futures",
  "oxide-core",
  "rayon",
+ "serde",
  "thiserror 2.0.20",
  "tokio",
  "tracing",
+ "wgpu 24.0.5",
 ]
 
 [[package]]

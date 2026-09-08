@@ -1,0 +1,17 @@
+[package]
+name = "oxide-backend-vulkan"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+oxide-core.workspace = true
+oxide-hal.workspace = true
+bytemuck.workspace = true
+tracing.workspace = true
+
+[lints]
+workspace = true
