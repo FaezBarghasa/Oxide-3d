@@ -1,7 +1,8 @@
 //! Interactive 3D Viewport canvas widget with Orbit/Pan/Zoom camera controls.
 
 use iced::mouse::{self, Button, Cursor};
-use iced::widget::canvas::{self, Action, Frame, Geometry, Path, Program, Stroke};
+use iced::widget::canvas::{Event, Frame, Geometry, Path, Program, Stroke};
+use iced::widget::Action;
 use iced::{Color, Element, Length, Point, Rectangle, Renderer, Theme};
 use oxide_render::{Camera, TriMesh};
 
@@ -35,27 +36,19 @@ pub enum ViewportMessage {
 }
 
 /// Drag interaction state.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 enum DragMode {
+    #[default]
     None,
     Orbit,
     Pan,
 }
 
 /// Internal state for the interactive 3D viewport canvas.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ViewportState {
     last_cursor: Option<Point>,
     drag_mode: DragMode,
-}
-
-impl Default for ViewportState {
-    fn default() -> Self {
-        Self {
-            last_cursor: None,
-            drag_mode: DragMode::None,
-        }
-    }
 }
 
 /// Interactive 3D Viewport Canvas Program for Iced.
@@ -78,75 +71,57 @@ impl<'a> Program<ViewportMessage, Theme, Renderer> for ViewportWidget<'a> {
     fn update(
         &self,
         state: &mut Self::State,
-        event: canvas::Event,
+        event: &Event,
         bounds: Rectangle,
         cursor: Cursor,
-    ) -> (Action<ViewportMessage>, Option<canvas::event::Status>) {
-        let Some(cursor_position) = cursor.position_in(bounds) else {
-            return (Action::idle(), None);
-        };
+    ) -> Option<Action<ViewportMessage>> {
+        let cursor_position = cursor.position_in(bounds)?;
 
         match event {
-            canvas::Event::Mouse(mouse_event) => match mouse_event {
+            Event::Mouse(mouse_event) => match mouse_event {
                 mouse::Event::ButtonPressed(Button::Left) => {
                     state.drag_mode = DragMode::Orbit;
                     state.last_cursor = Some(cursor_position);
-                    (
-                        Action::publish(ViewportMessage::Pick {
-                            screen_pos: [cursor_position.x, cursor_position.y],
-                        }),
-                        Some(canvas::event::Status::Captured),
-                    )
+                    Some(Action::publish(ViewportMessage::Pick {
+                        screen_pos: [cursor_position.x, cursor_position.y],
+                    }))
                 }
                 mouse::Event::ButtonPressed(Button::Middle | Button::Right) => {
                     state.drag_mode = DragMode::Pan;
                     state.last_cursor = Some(cursor_position);
-                    (Action::idle(), Some(canvas::event::Status::Captured))
+                    Some(Action::capture())
                 }
                 mouse::Event::ButtonReleased(Button::Left | Button::Middle | Button::Right) => {
                     state.drag_mode = DragMode::None;
                     state.last_cursor = None;
-                    (Action::idle(), Some(canvas::event::Status::Captured))
+                    Some(Action::capture())
                 }
-                mouse::Event::CursorMoved { position } => {
-                    if let Some(pos_in_bounds) = cursor.position_in(bounds) {
-                        let prev = state.last_cursor.replace(pos_in_bounds);
-                        if let Some(prev_pos) = prev {
-                            let dx = pos_in_bounds.x - prev_pos.x;
-                            let dy = pos_in_bounds.y - prev_pos.y;
-                            match state.drag_mode {
-                                DragMode::Orbit => (
-                                    Action::publish(ViewportMessage::Orbit { dx, dy }),
-                                    Some(canvas::event::Status::Captured),
-                                ),
-                                DragMode::Pan => (
-                                    Action::publish(ViewportMessage::Pan { dx, dy }),
-                                    Some(canvas::event::Status::Captured),
-                                ),
-                                DragMode::None => (Action::idle(), None),
-                            }
-                        } else {
-                            (Action::idle(), None)
+                mouse::Event::CursorMoved { .. } => {
+                    let prev = state.last_cursor.replace(cursor_position);
+                    if let Some(prev_pos) = prev {
+                        let dx = cursor_position.x - prev_pos.x;
+                        let dy = cursor_position.y - prev_pos.y;
+                        match state.drag_mode {
+                            DragMode::Orbit => Some(Action::publish(ViewportMessage::Orbit { dx, dy })),
+                            DragMode::Pan => Some(Action::publish(ViewportMessage::Pan { dx, dy })),
+                            DragMode::None => None,
                         }
                     } else {
-                        state.last_cursor = None;
-                        (Action::idle(), None)
+                        None
                     }
                 }
                 mouse::Event::WheelScrolled { delta } => {
                     let scroll_amount = match delta {
-                        mouse::ScrollDelta::Lines { y, .. } => y * 20.0,
-                        mouse::ScrollDelta::Pixels { y, .. } => y,
+                        mouse::ScrollDelta::Lines { y, .. } => *y * 20.0,
+                        mouse::ScrollDelta::Pixels { y, .. } => *y,
                     };
-                    (
-                        Action::publish(ViewportMessage::Zoom {
-                            delta: scroll_amount,
-                        }),
-                        Some(canvas::event::Status::Captured),
-                    )
+                    Some(Action::publish(ViewportMessage::Zoom {
+                        delta: scroll_amount,
+                    }))
                 }
+                _ => None,
             },
-            _ => (Action::idle(), None),
+            _ => None,
         }
     }
 
@@ -223,19 +198,19 @@ impl<'a> Program<ViewportMessage, Theme, Renderer> for ViewportWidget<'a> {
             let i1 = chunk[1] as usize;
             let i2 = chunk[2] as usize;
 
-            if let (Some((p0, z0)), Some((p1, z1)), Some((p2, z2))) =
-                (screen_pts.get(i0), screen_pts.get(i1), screen_pts.get(i2))
-            {
-                if let (Some((p0, z0)), Some((p1, z1)), Some((p2, z2))) = (*p0, *p1, *p2) {
-                    // Backface culling in screen space (2D cross product)
-                    let edge1 = Point::new(p1.x - p0.x, p1.y - p0.y);
-                    let edge2 = Point::new(p2.x - p0.x, p2.y - p0.y);
-                    let cross = edge1.x * edge2.y - edge1.y * edge2.x;
+            let opt0 = screen_pts.get(i0).copied().flatten();
+            let opt1 = screen_pts.get(i1).copied().flatten();
+            let opt2 = screen_pts.get(i2).copied().flatten();
 
-                    if cross > 0.0 {
-                        let avg_z = (z0 + z1 + z2) / 3.0;
-                        tri_indices.push((avg_z, [p0, p1, p2], i0));
-                    }
+            if let (Some((p0, z0)), Some((p1, z1)), Some((p2, z2))) = (opt0, opt1, opt2) {
+                // Backface culling in screen space (2D cross product)
+                let edge1 = Point::new(p1.x - p0.x, p1.y - p0.y);
+                let edge2 = Point::new(p2.x - p0.x, p2.y - p0.y);
+                let cross = edge1.x * edge2.y - edge1.y * edge2.x;
+
+                if cross > 0.0 {
+                    let avg_z = (z0 + z1 + z2) / 3.0;
+                    tri_indices.push((avg_z, [p0, p1, p2], i0));
                 }
             }
         }
@@ -293,8 +268,9 @@ pub fn viewport_canvas<'a, Message: 'a>(
     mesh: &'a TriMesh,
     map_fn: impl Fn(ViewportMessage) -> Message + 'a,
 ) -> Element<'a, Message> {
-    canvas(ViewportWidget::new(camera, mesh))
+    iced::widget::Canvas::new(ViewportWidget::new(camera, mesh))
         .width(Length::Fill)
         .height(Length::Fill)
-        .into()
+        .into_element()
+        .map(map_fn)
 }
