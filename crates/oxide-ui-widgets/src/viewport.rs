@@ -268,9 +268,10 @@ pub fn viewport_canvas<'a, Message: 'a>(
     mesh: &'a TriMesh,
     map_fn: impl Fn(ViewportMessage) -> Message + 'a,
 ) -> Element<'a, Message> {
-    iced::widget::Canvas::new(ViewportWidget::new(camera, mesh))
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .into_element()
-        .map(map_fn)
+    Element::from(
+        iced::widget::Canvas::new(ViewportWidget::new(camera, mesh))
+            .width(Length::Fill)
+            .height(Length::Fill),
+    )
+    .map(map_fn)
 }

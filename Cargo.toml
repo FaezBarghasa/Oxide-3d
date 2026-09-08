@@ -135,7 +135,7 @@ bytemuck = { version = "1.21", features = ["derive"] }
 # ------------------------------------------------------------
 wgpu = "30.0.1"
 naga = "30.0.1"
-encase = { version = "0.12.1", features = ["glam"] }
+encase = "0.12.1"
 pollster = "1.0.1"
 half = { version = "2.4", features = ["bytemuck"] }
 image = { version = "0.25", default-features = false, features = [
@@ -225,10 +225,9 @@ wit-bindgen = "0.61.1"
 # ------------------------------------------------------------
 rapier3d = { version = "0.35.3", features = [
     "parallel",
-    "simd-stable",
     "serde-serialize",
 ] }
-parry3d = { version = "0.30.2", features = ["simd-stable", "serde-serialize"] }
+parry3d = { version = "0.30.2", features = ["serde-serialize"] }
 
 # ------------------------------------------------------------
 # Industrial data / analytics

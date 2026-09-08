@@ -7,9 +7,10 @@ fn main() -> iced::Result {
     tracing::info!("Starting Oxide-3D Desktop UI");
 
     iced::application(
-        "Oxide-3D Engineering Platform",
+        OxideApp::new,
         OxideApp::update,
         OxideApp::view,
     )
+    .title("Oxide-3D Engineering Platform")
     .run()
 }

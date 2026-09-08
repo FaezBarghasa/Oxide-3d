@@ -10,6 +10,7 @@ repository.workspace = true
 [dependencies]
 oxide-core.workspace = true
 oxide-ui-widgets.workspace = true
+oxide-render.workspace = true
 oxide-automation.workspace = true
 oxide-settings.workspace = true
 iced.workspace = true
