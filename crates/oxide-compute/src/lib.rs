@@ -1,5 +1,9 @@
 //! Oxide-3D Compute scheduler, background CPU thread pools, and asynchronous task execution.
 
+pub mod cpu;
+pub mod native;
+pub mod traits;
+
 use tokio::sync::mpsc;
 use tracing::info;
 

@@ -120,7 +120,7 @@ impl Surface3d {
 
 /// Tensor-product de Boor evaluation for bivariate NURBS surface.
 fn evaluate_nurbs_surface(
-    degrees: (usize, usize),
+    _degrees: (usize, usize),
     control_points: &[Vec<[f64; 4]>],
     _knots_u: &[f64],
     _knots_v: &[f64],
