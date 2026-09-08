@@ -5291,6 +5291,7 @@ dependencies = [
  "rapier3d",
  "rayon",
  "serde",
+ "slotmap",
 ]
 
 [[package]]

@@ -3,7 +3,9 @@
 pub mod boolean;
 pub mod feature_ops;
 pub mod kernel;
+pub mod sketch_solver;
 
 pub use boolean::{BooleanKind, BooleanOptions};
 pub use feature_ops::{ExtrudeOptions, FilletOptions};
 pub use kernel::{GeometryKernel, KernelResult};
+pub use sketch_solver::{SketchConstraint, SketchPoint2d, SketchSolver};

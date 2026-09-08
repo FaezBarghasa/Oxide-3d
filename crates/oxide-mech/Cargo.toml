@@ -13,6 +13,7 @@ oxide-scene.workspace = true
 oxide-math.workspace = true
 rapier3d.workspace = true
 parry3d.workspace = true
+slotmap.workspace = true
 rayon.workspace = true
 serde.workspace = true
 
