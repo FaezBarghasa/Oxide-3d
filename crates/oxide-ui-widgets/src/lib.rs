@@ -1,25 +1,22 @@
 //! Oxide-3D Custom Iced Widgets (Viewport Canvas, Tree View, Node Graph Canvas).
 
-use serde::{Deserialize, Serialize};
+pub mod viewport;
 
-/// Message emitted by the interactive 3D Viewport widget.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum ViewportMessage {
-    /// Orbit camera drag [dx, dy].
-    Orbit { dx: f32, dy: f32 },
-    /// Pan camera drag [dx, dy].
-    Pan { dx: f32, dy: f32 },
-    /// Zoom camera delta.
-    Zoom { delta: f32 },
-    /// Selection click at screen coords [x, y].
-    Pick { screen_pos: [f32; 2] },
-}
+pub use viewport::{viewport_canvas, ViewportMessage, ViewportState, ViewportWidget};
+
+use serde::{Deserialize, Serialize};
 
 /// Message emitted by the Parametric Feature Tree widget.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum FeatureTreeMessage {
     /// Feature node selected in tree.
-    SelectFeature { id: usize },
+    SelectFeature {
+        /// Selected feature id.
+        id: usize,
+    },
     /// Toggle feature suppression.
-    ToggleSuppress { id: usize },
+    ToggleSuppress {
+        /// Toggled feature id.
+        id: usize,
+    },
 }

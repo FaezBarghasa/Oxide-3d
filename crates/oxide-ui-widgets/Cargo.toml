@@ -16,6 +16,7 @@ iced.workspace = true
 slotmap.workspace = true
 smallvec.workspace = true
 serde.workspace = true
+glam.workspace = true
 tracing.workspace = true
 
 [lints]
