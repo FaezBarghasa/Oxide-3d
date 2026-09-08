@@ -3,9 +3,9 @@ use glam::{Mat4, Vec3};
 /// Viewport 3D Orbit/Pan/Zoom Camera.
 #[derive(Debug, Clone, Copy)]
 pub struct Camera {
-    /// Eye position.
+    /// Eye position in world space.
     pub eye: Vec3,
-    /// Target center point.
+    /// Target center point in world space.
     pub target: Vec3,
     /// Up direction.
     pub up: Vec3,
@@ -40,5 +40,53 @@ impl Camera {
         let view = Mat4::look_at_rh(self.eye, self.target, self.up);
         let proj = Mat4::perspective_rh(self.fov_y, self.aspect, self.z_near, self.z_far);
         proj * view
+    }
+
+    /// Orbit camera around the target point.
+    pub fn orbit(&mut self, dx: f32, dy: f32) {
+        let mut offset = self.eye - self.target;
+        let radius = offset.length();
+        if radius < 1e-4 {
+            return;
+        }
+
+        // Spherical coordinates
+        let mut theta = offset.z.atan2(offset.x);
+        let mut phi = (offset.y / radius).clamp(-1.0, 1.0).acos();
+
+        theta -= dx * 0.01;
+        phi = (phi - dy * 0.01).clamp(0.01, std::f32::consts::PI - 0.01);
+
+        offset.x = radius * phi.sin() * theta.cos();
+        offset.y = radius * phi.cos();
+        offset.z = radius * phi.sin() * theta.sin();
+
+        self.eye = self.target + offset;
+    }
+
+    /// Pan camera relative to view plane.
+    pub fn pan(&mut self, dx: f32, dy: f32) {
+        let forward = (self.target - self.eye).normalize_or_zero();
+        let right = forward.cross(self.up).normalize_or_zero();
+        let cam_up = right.cross(forward).normalize_or_zero();
+
+        let pan_speed = (self.eye - self.target).length() * 0.002;
+        let delta = -right * dx * pan_speed + cam_up * dy * pan_speed;
+
+        self.eye += delta;
+        self.target += delta;
+    }
+
+    /// Zoom camera toward/away from target point.
+    pub fn zoom(&mut self, delta: f32) {
+        let mut offset = self.eye - self.target;
+        let dist = offset.length();
+        let zoom_factor = (1.0 - delta * 0.0015).clamp(0.05, 5.0);
+        let new_dist = (dist * zoom_factor).clamp(0.1, 10_000.0);
+
+        if dist > 1e-4 {
+            offset = offset.normalize() * new_dist;
+            self.eye = self.target + offset;
+        }
     }
 }

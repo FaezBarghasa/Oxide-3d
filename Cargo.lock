@@ -5165,6 +5165,7 @@ dependencies = [
  "oxide-math",
  "oxide-scene",
  "palette",
+ "serde",
  "thiserror 2.0.20",
  "tracing",
  "wgpu 24.0.5",
