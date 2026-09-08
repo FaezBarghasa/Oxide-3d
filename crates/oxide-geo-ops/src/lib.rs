@@ -7,5 +7,5 @@ pub mod sketch_solver;
 
 pub use boolean::{BooleanKind, BooleanOptions};
 pub use feature_ops::{ExtrudeOptions, FilletOptions};
-pub use kernel::{GeometryKernel, KernelResult};
+pub use kernel::{GeometryKernel, KernelError, KernelResult, NativeGeometryKernel};
 pub use sketch_solver::{SketchConstraint, SketchPoint2d, SketchSolver};
