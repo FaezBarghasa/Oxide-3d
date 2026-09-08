@@ -5345,6 +5345,7 @@ version = "0.1.0"
 dependencies = [
  "jiff",
  "oxide-core",
+ "petgraph 0.8.3",
  "redb",
  "serde",
  "serde_json",

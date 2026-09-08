@@ -171,7 +171,12 @@ impl MechanismWorld {
                     axis[1] as Real,
                     axis[2] as Real,
                 );
-                let mut prism = PrismaticJointBuilder::new(ax);
+                let b1 = self.rigid_body_set.get(h1).unwrap();
+                let b2 = self.rigid_body_set.get(h2).unwrap();
+                let rel_offset = b2.translation() - b1.translation();
+
+                let mut prism = PrismaticJointBuilder::new(ax)
+                    .local_anchor2(-rel_offset);
                 if let Some(lim) = limits {
                     prism = prism.limits([lim[0] as Real, lim[1] as Real]);
                 }
