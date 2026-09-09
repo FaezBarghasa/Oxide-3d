@@ -13,7 +13,12 @@ use thiserror::Error;
 pub enum NodeError {
     /// Type mismatch on connected sockets.
     #[error("Type mismatch: expected {expected}, got {found}")]
-    TypeMismatch { expected: String, found: String },
+    TypeMismatch {
+        /// Expected socket type name.
+        expected: String,
+        /// Actual socket type name received.
+        found: String,
+    },
 
     /// Cycle detected in node graph.
     #[error("Cycle detected in node execution DAG")]
@@ -25,7 +30,12 @@ pub enum NodeError {
 
     /// Missing required input.
     #[error("Missing input socket {socket} on node {node_id}")]
-    MissingInput { node_id: usize, socket: usize },
+    MissingInput {
+        /// ID of target node.
+        node_id: usize,
+        /// Socket index on node.
+        socket: usize,
+    },
 
     /// General node execution error.
     #[error("Node evaluation failed: {0}")]
@@ -158,6 +168,7 @@ pub trait OxideNode: Send + Sync {
 // ==========================================
 
 /// Cube Primitive Node.
+#[derive(Debug, Clone, Copy, Default)]
 pub struct CubeNode;
 impl OxideNode for CubeNode {
     fn name(&self) -> &'static str {
@@ -208,6 +219,7 @@ impl OxideNode for CubeNode {
 }
 
 /// Transform Geometry Node.
+#[derive(Debug, Clone, Copy, Default)]
 pub struct TransformGeometryNode;
 impl OxideNode for TransformGeometryNode {
     fn name(&self) -> &'static str {
@@ -264,6 +276,7 @@ impl OxideNode for TransformGeometryNode {
 }
 
 /// Join Geometry Node.
+#[derive(Debug, Clone, Copy, Default)]
 pub struct JoinGeometryNode;
 impl OxideNode for JoinGeometryNode {
     fn name(&self) -> &'static str {
