@@ -332,6 +332,15 @@ pub struct NodeGraph {
     node_indices: Vec<NodeIndex>,
 }
 
+impl std::fmt::Debug for NodeGraph {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("NodeGraph")
+            .field("node_count", &self.graph.node_count())
+            .field("edge_count", &self.graph.edge_count())
+            .finish()
+    }
+}
+
 impl Default for NodeGraph {
     fn default() -> Self {
         Self::new()

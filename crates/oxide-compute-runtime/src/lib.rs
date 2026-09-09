@@ -10,7 +10,7 @@ use oxide_backend_rocm::RocmBackend;
 use oxide_backend_vulkan::VulkanBackend;
 use oxide_backend_wgpu::WgpuBackend;
 use oxide_hal::{
-    AcceleratorBackend, BackendCapabilities, BackendKind, BlockDim, ComputeError, DeviceBuffer,
+    AcceleratorBackend, BackendCapabilities, BackendKind, BlockDim, ComputeError,
     GridDim, KernelArg, KernelRequirement,
 };
 use oxide_kernels::{KernelCategory, KernelRegistry};

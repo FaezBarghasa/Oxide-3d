@@ -129,13 +129,10 @@ impl MetrologyVerifier {
         centroid[1] /= n;
         centroid[2] /= n;
 
-        // Covariance matrix components for normal estimation
+        // Covariance matrix diagonal components for normal estimation
         let mut cxx = 0.0;
         let mut cyy = 0.0;
         let mut czz = 0.0;
-        let mut cxy = 0.0;
-        let mut cxz = 0.0;
-        let mut cyz = 0.0;
 
         for p in points {
             let rx = p[0] - centroid[0];
@@ -144,9 +141,6 @@ impl MetrologyVerifier {
             cxx += rx * rx;
             cyy += ry * ry;
             czz += rz * rz;
-            cxy += rx * ry;
-            cxz += rx * rz;
-            cyz += ry * rz;
         }
 
         // Approximate least squares normal vector (pointing predominantly along least variance axis)

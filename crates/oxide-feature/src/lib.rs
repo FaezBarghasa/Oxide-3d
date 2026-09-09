@@ -7,17 +7,35 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum FeatureKind {
     /// Datum reference plane or coordinate system.
-    DatumPlane { name: String },
+    DatumPlane {
+        /// Datum plane identifier name.
+        name: String,
+    },
     /// 2D sketch constraint plane.
-    Sketch { name: String },
+    Sketch {
+        /// Sketch identifier name.
+        name: String,
+    },
     /// Extrude feature.
-    Extrude { depth: f64 },
+    Extrude {
+        /// Extrusion linear depth distance.
+        depth: f64,
+    },
     /// Revolve feature.
-    Revolve { angle_rad: f64 },
+    Revolve {
+        /// Revolution angle in radians.
+        angle_rad: f64,
+    },
     /// Fillet feature.
-    Fillet { radius: f64 },
+    Fillet {
+        /// Fillet blending radius.
+        radius: f64,
+    },
     /// Chamfer feature.
-    Chamfer { distance: f64 },
+    Chamfer {
+        /// Chamfer offset distance.
+        distance: f64,
+    },
 }
 
 /// A node in the parametric feature tree.

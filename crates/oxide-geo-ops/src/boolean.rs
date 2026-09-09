@@ -1,6 +1,6 @@
 //! Exact constructive B-Rep boolean operations (Union, Difference, Intersection).
 
-use oxide_core::id::{FaceKey, ShellKey, SolidKey, VertexKey};
+use oxide_core::id::{FaceKey, SolidKey, VertexKey};
 use oxide_geo::surface::Surface3d;
 use oxide_geo::topology::TopologyDatabase;
 use serde::{Deserialize, Serialize};

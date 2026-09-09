@@ -52,6 +52,7 @@ pub struct ViewportState {
 }
 
 /// Interactive 3D Viewport Canvas Program for Iced.
+#[derive(Debug)]
 pub struct ViewportWidget<'a> {
     camera: &'a Camera,
     mesh: &'a TriMesh,
