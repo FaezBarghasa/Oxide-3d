@@ -1,12 +1,59 @@
-pub mod command_manager;
-pub mod feature_manager;
-pub mod heads_up;
-pub mod menu_bar;
+//! Oxide-3D UI Shell: SolidWorks-style CommandManager, MenuBar, FeatureManager Tree, and Heads-Up Viewport.
 
-use command_manager::{CommandManagerModel, CommandTab, DocumentContext};
-use feature_manager::{FeatureManagerTree, PropertyManagerModel};
-use heads_up::{HeadsUpToolbarModel, ShortcutBarModel, TaskPaneModel};
-use menu_bar::{MenuBarModel, MenuCategory};
+pub mod animation_system;
+pub mod command_manager;
+pub mod command_panel;
+pub mod dcc_menu;
+pub mod dcc_toolbar;
+pub mod dcc_viewport;
+pub mod feature_manager;
+pub mod graphite_ribbon;
+pub mod heads_up;
+pub mod material_editor;
+pub mod menu_bar;
+pub mod particles_physics;
+pub mod preferences_shortcuts;
+pub mod rendering_system;
+
+pub use animation_system::{AnimationSystemModel, ControllerKind, KeyframeMode, TrackViewMode};
+pub use command_manager::{CommandManagerModel, CommandTab, CommandToolDef, DocumentContext};
+pub use command_panel::{
+    CommandPanelModel, CommandPanelTab, CreateCategory, GeometrySubcategory, ModifyPanelModel,
+};
+pub use dcc_menu::{DccMenuBarModel, DccMenuCategory, DccMenuItemDef};
+pub use dcc_toolbar::{
+    CoordSystem, DccMainToolbarModel, SelectionFilter, SelectionRegionMode, TransformCenterMode,
+    TransformToolMode,
+};
+pub use dcc_viewport::{
+    DccShadingMode, DccViewportModel, ViewportLayoutPreset, ViewportNavTool, ViewportViewType,
+};
+pub use feature_manager::{
+    FeatureManagerTree, FeatureTreeNode, PropertyField, PropertyManagerModel, TreeItemKind,
+};
+pub use graphite_ribbon::{
+    GraphiteRibbonModel, PaintDeformMode, PolyDrawMode, RibbonTab, SubObjectLevel,
+};
+pub use heads_up::{
+    DisplayStyle, HeadsUpToolbarModel, ShortcutBarModel, TaskPaneModel, TaskPaneTab,
+};
+pub use material_editor::{
+    CompactSampleSlot, DccMaterialType, MaterialEditorMode, MaterialEditorModel,
+    ShaderIlluminationModel,
+};
+pub use menu_bar::{MenuBarModel, MenuCategory, MenuItemDef};
+pub use particles_physics::{
+    MassFxBodyType, MassFxColliderShape, MassFxState, ParticleSystemType, ParticlesPhysicsModel,
+    SpaceWarpType,
+};
+pub use preferences_shortcuts::{
+    InteractionModePreset, PreferencesShortcutsModel, PreferencesTab, QuadMenuKind, QuadMenuModel,
+    ShortcutBinding,
+};
+pub use rendering_system::{
+    EnvironmentEffectsConfig, OutputResolutionPreset, ProductionRenderer, RenderingSystemModel,
+    TimeOutputMode,
+};
 
 use iced::widget::{button, column, container, row, text};
 use iced::{Alignment, Element, Length, Task};
@@ -39,6 +86,8 @@ pub enum WorkspaceMode {
     Inspect,
     /// Product Lifecycle Management & BOM.
     Plm,
+    /// DCC Digital Content Creation & Animation.
+    Dcc,
 }
 
 /// Oxide-3D UI top-level message enum.
@@ -76,6 +125,12 @@ pub enum OxideUiMessage {
     ToolFeaMesh,
     /// Export recorded commands as Python script.
     ExportMacro,
+    /// Toggle DCC Menu.
+    ToggleDccMenu(DccMenuCategory),
+    /// Select DCC Command Panel Tab.
+    SelectCommandPanelTab(CommandPanelTab),
+    /// Select DCC Ribbon Tab.
+    SelectRibbonTab(RibbonTab),
 }
 
 /// Main Oxide-3D Iced Application State.
@@ -109,6 +164,26 @@ pub struct OxideApp {
     pub task_pane: TaskPaneModel,
     /// Quick "S" Shortcut Bar.
     pub shortcut_bar: ShortcutBarModel,
+    /// DCC 13-Menu Bar System.
+    pub dcc_menu: DccMenuBarModel,
+    /// DCC Main Toolbar System.
+    pub dcc_toolbar: DccMainToolbarModel,
+    /// DCC 6-Tab Command Panel.
+    pub command_panel: CommandPanelModel,
+    /// DCC Graphite Modeling Ribbon.
+    pub graphite_ribbon: GraphiteRibbonModel,
+    /// DCC Viewport Navigation & Config.
+    pub dcc_viewport: DccViewportModel,
+    /// DCC Material Editor & Maps.
+    pub material_editor: MaterialEditorModel,
+    /// DCC Animation System & Controllers.
+    pub animation_system: AnimationSystemModel,
+    /// DCC Rendering Engine Setup.
+    pub rendering_system: RenderingSystemModel,
+    /// DCC Particles & MassFX Physics.
+    pub particles_physics: ParticlesPhysicsModel,
+    /// DCC Preferences & Shortcuts.
+    pub preferences: PreferencesShortcutsModel,
 }
 
 impl Default for OxideApp {
@@ -130,6 +205,16 @@ impl Default for OxideApp {
             heads_up: HeadsUpToolbarModel::default(),
             task_pane: TaskPaneModel::default(),
             shortcut_bar: ShortcutBarModel::default(),
+            dcc_menu: DccMenuBarModel::new(),
+            dcc_toolbar: DccMainToolbarModel::new(),
+            command_panel: CommandPanelModel::new(),
+            graphite_ribbon: GraphiteRibbonModel::new(),
+            dcc_viewport: DccViewportModel::new(),
+            material_editor: MaterialEditorModel::new(),
+            animation_system: AnimationSystemModel::new(),
+            rendering_system: RenderingSystemModel::new(),
+            particles_physics: ParticlesPhysicsModel::new(),
+            preferences: PreferencesShortcutsModel::new(),
         }
     }
 }
@@ -260,6 +345,18 @@ impl OxideApp {
                     self.recorder.recorded_commands.len()
                 );
             }
+            OxideUiMessage::ToggleDccMenu(cat) => {
+                self.dcc_menu.toggle_menu(cat);
+                self.status_text = format!("Menu: {:?}", cat);
+            }
+            OxideUiMessage::SelectCommandPanelTab(tab) => {
+                self.command_panel.set_tab(tab);
+                self.status_text = format!("Command Panel: {:?}", tab);
+            }
+            OxideUiMessage::SelectRibbonTab(tab) => {
+                self.graphite_ribbon.active_tab = tab;
+                self.status_text = format!("Graphite Ribbon: {:?}", tab);
+            }
         }
         Task::none()
     }
@@ -276,6 +373,7 @@ impl OxideApp {
             (WorkspaceMode::Cam, "CAM"),
             (WorkspaceMode::Inspect, "Inspect"),
             (WorkspaceMode::Plm, "PLM"),
+            (WorkspaceMode::Dcc, "DCC / Max"),
         ];
 
         let mode_buttons = modes.iter().fold(
@@ -317,7 +415,7 @@ impl OxideApp {
         )
         .padding(6);
 
-        // Sidebar tools contextually styled for CAD vs Sculpt
+        // Sidebar tools contextually styled for CAD vs Sculpt vs DCC
         let sidebar_content = match self.mode {
             WorkspaceMode::Sculpt => column![
                 text("Sculpt Brushes").size(14),
@@ -333,6 +431,39 @@ impl OxideApp {
                 button(text("Voxel Remesh").size(12))
                     .width(Length::Fill)
                     .on_press(OxideUiMessage::ToolRemesh),
+            ],
+            WorkspaceMode::Dcc => column![
+                text("DCC Command Panel").size(14),
+                button(text("Create").size(12))
+                    .width(Length::Fill)
+                    .on_press(OxideUiMessage::SelectCommandPanelTab(
+                        CommandPanelTab::Create
+                    )),
+                button(text("Modify").size(12))
+                    .width(Length::Fill)
+                    .on_press(OxideUiMessage::SelectCommandPanelTab(
+                        CommandPanelTab::Modify
+                    )),
+                button(text("Hierarchy").size(12))
+                    .width(Length::Fill)
+                    .on_press(OxideUiMessage::SelectCommandPanelTab(
+                        CommandPanelTab::Hierarchy
+                    )),
+                button(text("Motion").size(12))
+                    .width(Length::Fill)
+                    .on_press(OxideUiMessage::SelectCommandPanelTab(
+                        CommandPanelTab::Motion
+                    )),
+                button(text("Display").size(12))
+                    .width(Length::Fill)
+                    .on_press(OxideUiMessage::SelectCommandPanelTab(
+                        CommandPanelTab::Display
+                    )),
+                button(text("Utilities").size(12))
+                    .width(Length::Fill)
+                    .on_press(OxideUiMessage::SelectCommandPanelTab(
+                        CommandPanelTab::Utilities
+                    )),
             ],
             _ => column![
                 text("CAD / CAE Tools").size(14),
@@ -503,5 +634,53 @@ mod tests {
             app.heads_up.display_style,
             heads_up::DisplayStyle::ShadedWithEdges
         );
+    }
+
+    #[test]
+    fn test_dcc_menu_and_command_panel_catalog() {
+        let mut app = OxideApp::new();
+
+        // Check all 13 DCC menu categories
+        let all_cats = DccMenuCategory::all();
+        assert_eq!(all_cats.len(), 13);
+        for cat in all_cats {
+            let items = app.dcc_menu.get_menu_items(*cat);
+            assert!(!items.is_empty(), "Menu {:?} should not be empty", cat);
+        }
+
+        // Toggle DCC Menu
+        let _ = app.update(OxideUiMessage::ToggleDccMenu(DccMenuCategory::Modifiers));
+        assert_eq!(app.dcc_menu.active_menu, Some(DccMenuCategory::Modifiers));
+
+        // Test Command Panel switching
+        let _ = app.update(OxideUiMessage::SelectCommandPanelTab(
+            CommandPanelTab::Modify,
+        ));
+        assert_eq!(app.command_panel.active_tab, CommandPanelTab::Modify);
+        assert_eq!(app.command_panel.modify.stack.len(), 3);
+
+        // Test Graphite Ribbon switching
+        let _ = app.update(OxideUiMessage::SelectRibbonTab(RibbonTab::Freeform));
+        assert_eq!(app.graphite_ribbon.active_tab, RibbonTab::Freeform);
+
+        // Test DCC Viewport Navigation and Maximize
+        assert_eq!(app.dcc_viewport.shading_mode, DccShadingMode::Realistic);
+        app.dcc_viewport.toggle_maximize();
+        assert!(app.dcc_viewport.is_maximized);
+
+        // Test Material Editor Sample Slots
+        assert_eq!(app.material_editor.sample_slots.len(), 24);
+
+        // Test Animation System frame stepping
+        assert_eq!(app.animation_system.current_frame, 0);
+        app.animation_system.next_frame();
+        assert_eq!(app.animation_system.current_frame, 1);
+        app.animation_system.prev_frame();
+        assert_eq!(app.animation_system.current_frame, 0);
+
+        // Test Preferences & Shortcuts
+        assert!(app.preferences.shortcuts.len() > 30);
+        assert!(app.preferences.shortcuts.iter().any(|s| s.key == "Alt+W"));
+        assert!(app.preferences.shortcuts.iter().any(|s| s.key == "Ctrl+Z"));
     }
 }

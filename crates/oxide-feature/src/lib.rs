@@ -58,6 +58,7 @@ pub enum FeatureKind {
 /// Type of non-destructive modifier in the modifier stack.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ModifierKind {
+    // --- Generate Modifiers ---
     /// Array linear/radial repeat modifier.
     Array {
         /// Number of copies.
@@ -77,6 +78,50 @@ pub enum ModifierKind {
         /// Operation type ("Union", "Difference", "Intersect").
         operation: String,
     },
+    /// Decimate mesh polygon count modifier.
+    Decimate {
+        /// Reduction ratio (0.0 - 1.0).
+        ratio: f64,
+    },
+    /// Edge split sharp feature modifier.
+    EdgeSplit {
+        /// Split angle threshold in radians.
+        split_angle: f64,
+    },
+    /// Mask modifier based on vertex group or armature.
+    Mask {
+        /// Invert mask flag.
+        invert: bool,
+    },
+    /// Mirror modifier across Cartesian plane.
+    Mirror {
+        /// Mirror plane normal [nx, ny, nz].
+        axis: [f64; 3],
+    },
+    /// Multiresolution sculpting modifier.
+    Multiresolution {
+        /// Sculpt subdivision level.
+        sculpt_level: u32,
+    },
+    /// Remesh modifier (Voxel / Quad / Sharp).
+    Remesh {
+        /// Voxel dimension or target face count.
+        voxel_size: f64,
+        /// Smooth shading flag.
+        smooth_shading: bool,
+    },
+    /// Screw / Helical revolution modifier.
+    Screw {
+        /// Screw pitch / offset distance per turn.
+        screw_pitch: f64,
+        /// Total revolution iterations.
+        iterations: u32,
+    },
+    /// Skin skeletal extrusion modifier.
+    Skin {
+        /// Branch smoothing factor.
+        branch_smoothing: f64,
+    },
     /// Solidify / thicken modifier.
     Solidify {
         /// Thickness of wall.
@@ -87,15 +132,122 @@ pub enum ModifierKind {
         /// Subdiv levels.
         levels: u32,
     },
-    /// Mirror modifier across Cartesian plane.
-    Mirror {
-        /// Mirror plane normal [nx, ny, nz].
-        axis: [f64; 3],
+    /// Triangulate polygon faces modifier.
+    Triangulate {
+        /// Quad method (e.g. "Beauty", "Fixed", "Shortest").
+        quad_method: String,
     },
-    /// Displace / deform modifier.
+    /// Weld duplicate/overlapping vertices within distance.
+    Weld {
+        /// Distance threshold.
+        distance_threshold: f64,
+    },
+    /// Wireframe edge tube extraction modifier.
+    Wireframe {
+        /// Thickness of wireframe struts.
+        thickness: f64,
+    },
+
+    // --- Deform Modifiers ---
+    /// Armature skeletal skinning deform.
+    Armature {
+        /// Armature object identifier.
+        armature_id: String,
+    },
+    /// Cast to sphere / cylinder / cuboid shape.
+    Cast {
+        /// Cast shape factor.
+        factor: f64,
+        /// Target shape ("Sphere", "Cylinder", "Cuboid").
+        shape: String,
+    },
+    /// Curve deform following guide path.
+    CurveDeform {
+        /// Deformation curve axis (X, Y, Z).
+        deform_axis: String,
+    },
+    /// Displace / deform modifier along normals.
     Displace {
         /// Strength factor.
         strength: f64,
+        /// Midlevel offset.
+        midlevel: f64,
+    },
+    /// Hook vertex group to empty object.
+    Hook {
+        /// Falloff radius.
+        falloff: f64,
+    },
+    /// Laplacian smooth deform.
+    LaplacianDeform {
+        /// Iteration repeat count.
+        iterations: u32,
+    },
+    /// Lattice 3D cage deformation.
+    Lattice {
+        /// Strength.
+        strength: f64,
+    },
+    /// Shrinkwrap onto target collision surface.
+    Shrinkwrap {
+        /// Offset from target surface.
+        offset: f64,
+        /// Projection wrap method ("NearestSurface", "Project", "NearestVertex").
+        wrap_method: String,
+    },
+    /// Simple Deform (Twist, Bend, Taper, Stretch).
+    SimpleDeform {
+        /// Deform mode ("Twist", "Bend", "Taper", "Stretch").
+        mode: String,
+        /// Deform angle or factor.
+        factor: f64,
+    },
+    /// Smooth Laplacian / surface fairing.
+    Smooth {
+        /// Smoothing factor.
+        factor: f64,
+        /// Iteration repeat count.
+        repeat: u32,
+    },
+    /// Wave animation deformation.
+    Wave {
+        /// Wave height amplitude.
+        height: f64,
+        /// Wave width wavelength.
+        width: f64,
+    },
+
+    // --- Edit & Normals Modifiers ---
+    /// Weighted Normal modifier for hard-surface shading.
+    WeightedNormal {
+        /// Weight factor.
+        weight: f64,
+        /// Keep sharp edges.
+        keep_sharp: bool,
+    },
+    /// Smooth by Angle modifier.
+    SmoothByAngle {
+        /// Auto-smooth angle in degrees.
+        angle_deg: f64,
+    },
+
+    // --- Physics & Simulation Modifiers ---
+    /// Cloth physical simulation modifier.
+    Cloth {
+        /// Structural stiffness.
+        stiffness: f64,
+        /// Mass density.
+        mass_kg: f64,
+    },
+    /// Collision boundary modifier.
+    Collision {
+        /// Surface friction coefficient.
+        friction: f64,
+    },
+    /// Soft Body dynamics modifier.
+    SoftBody {
+        /// Elastic spring friction.
+        friction: f64,
     },
 }
 
