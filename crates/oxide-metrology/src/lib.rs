@@ -264,7 +264,9 @@ mod tests {
         ];
 
         let reports = verifier.evaluate_true_position(&samples, &fcf);
-        assert!(reports[0].conforms, "Sample 0 conforms to true position");
-        assert!(!reports[1].conforms, "Sample 1 exceeds true position");
+        let r0 = reports.get(0).expect("Report 0 exists");
+        let r1 = reports.get(1).expect("Report 1 exists");
+        assert!(r0.conforms, "Sample 0 conforms to true position");
+        assert!(!r1.conforms, "Sample 1 exceeds true position");
     }
 }

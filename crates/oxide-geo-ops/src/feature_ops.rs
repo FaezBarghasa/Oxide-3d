@@ -39,6 +39,27 @@ impl Default for FilletOptions {
     }
 }
 
+/// Parametric options for 3D rotational revolution around an axis.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct RevolveOptions {
+    /// Angle of revolution in radians (2*PI for full 360 solid).
+    pub angle_radians: f64,
+    /// Origin point of revolution axis [x, y, z].
+    pub axis_origin: [f64; 3],
+    /// Direction vector of revolution axis [dx, dy, dz].
+    pub axis_direction: [f64; 3],
+}
+
+impl Default for RevolveOptions {
+    fn default() -> Self {
+        Self {
+            angle_radians: std::f64::consts::TAU,
+            axis_origin: [0.0, 0.0, 0.0],
+            axis_direction: [0.0, 0.0, 1.0],
+        }
+    }
+}
+
 /// Extrude a planar B-Rep face along a vector into a closed 3D solid body.
 pub fn extrude_face(
     db: &mut TopologyDatabase,
@@ -139,4 +160,108 @@ pub fn extrude_face(
 
     let shell = db.add_shell(all_faces, true);
     Some(db.add_solid(shell))
+}
+
+/// Revolve a planar face around an axis into a rotational 3D B-Rep solid body.
+pub fn revolve_face(
+    db: &mut TopologyDatabase,
+    face_key: FaceKey,
+    opts: RevolveOptions,
+) -> Option<SolidKey> {
+    let face = db.faces.get(face_key)?;
+    let wire = db.wires.get(face.outer_wire)?;
+
+    let mut base_vertices = Vec::new();
+    for &edge_key in &wire.edges {
+        let edge = db.edges.get(edge_key)?;
+        base_vertices.push(edge.start);
+    }
+
+    if base_vertices.len() < 3 {
+        return None;
+    }
+
+    let axis_dir = glam::DVec3::from_slice(&opts.axis_direction).normalize_or_zero();
+    let axis_origin = glam::DVec3::from_slice(&opts.axis_origin);
+    let quat = glam::DQuat::from_axis_angle(axis_dir, opts.angle_radians);
+
+    // Create rotated target vertices
+    let mut revolved_vertices = Vec::with_capacity(base_vertices.len());
+    for &v_base in &base_vertices {
+        let pt = db.vertices.get(v_base)?.point;
+        let v_rel = glam::DVec3::from_slice(&pt) - axis_origin;
+        let v_rot = axis_origin + quat.mul_vec3(v_rel);
+        let v_new = db.add_vertex([v_rot.x, v_rot.y, v_rot.z]);
+        revolved_vertices.push(v_new);
+    }
+
+    let n = base_vertices.len();
+    let mut lateral_faces = Vec::with_capacity(n);
+
+    for i in 0..n {
+        let next_i = (i + 1) % n;
+        let b0 = base_vertices[i];
+        let b1 = base_vertices[next_i];
+        let r0 = revolved_vertices[i];
+        let r1 = revolved_vertices[next_i];
+
+        let e_bottom = db.add_edge(b0, b1, None);
+        let e_right = db.add_edge(b1, r1, None);
+        let e_top = db.add_edge(r1, r0, None);
+        let e_left = db.add_edge(r0, b0, None);
+
+        let quad_wire = db.add_wire([e_bottom, e_right, e_top, e_left]);
+        let pt0 = db.vertices.get(b0)?.point;
+        let lat_face = db.add_face(
+            quad_wire,
+            Surface3d::Cylinder {
+                origin: opts.axis_origin,
+                axis: [axis_dir.x, axis_dir.y, axis_dir.z],
+                radius: (glam::DVec3::from_slice(&pt0) - axis_origin).length(),
+            },
+        );
+        lateral_faces.push(lat_face);
+    }
+
+    let mut revolved_edges = Vec::with_capacity(n);
+    for i in 0..n {
+        let next_i = (i + 1) % n;
+        let e = db.add_edge(revolved_vertices[i], revolved_vertices[next_i], None);
+        revolved_edges.push(e);
+    }
+    let top_wire = db.add_wire(revolved_edges);
+    let top_pt = db.vertices.get(revolved_vertices[0])?.point;
+    let top_face = db.add_face(
+        top_wire,
+        Surface3d::Plane {
+            origin: top_pt,
+            normal: [axis_dir.x, axis_dir.y, axis_dir.z],
+        },
+    );
+
+    let mut all_faces = vec![face_key, top_face];
+    all_faces.extend(lateral_faces);
+
+    let shell = db.add_shell(all_faces, true);
+    Some(db.add_solid(shell))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extrude_and_revolve_feature_ops() {
+        let mut db = TopologyDatabase::new();
+        let box_key = db.make_box(2.0, 2.0, 2.0);
+        let solid = db.solids.get(box_key).unwrap();
+        let shell = db.shells.get(solid.outer_shell).unwrap();
+        let face_key = shell.faces[0];
+
+        let extrude_solid = extrude_face(&mut db, face_key, [0.0, 0.0, 1.0], ExtrudeOptions::default());
+        assert!(extrude_solid.is_some());
+
+        let revolve_solid = revolve_face(&mut db, face_key, RevolveOptions::default());
+        assert!(revolve_solid.is_some());
+    }
 }

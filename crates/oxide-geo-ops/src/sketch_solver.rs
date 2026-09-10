@@ -258,9 +258,12 @@ mod tests {
         let iterations = solver.solve(20, 1e-6).expect("Solver should converge");
         assert!(iterations < 20);
 
-        assert!((solver.points[p0].x - 0.0).abs() < 1e-5);
-        assert!((solver.points[p0].y - 0.0).abs() < 1e-5);
-        assert!((solver.points[p1].x - 10.0).abs() < 1e-5);
-        assert!((solver.points[p1].y - 0.0).abs() < 1e-5);
+        let pt0 = solver.points.get(p0).expect("Point 0 exists");
+        let pt1 = solver.points.get(p1).expect("Point 1 exists");
+
+        assert!((pt0.x - 0.0).abs() < 1e-5);
+        assert!((pt0.y - 0.0).abs() < 1e-5);
+        assert!((pt1.x - 10.0).abs() < 1e-5);
+        assert!((pt1.y - 0.0).abs() < 1e-5);
     }
 }

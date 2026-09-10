@@ -148,3 +148,33 @@ impl ComputeRuntime {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_compute_runtime_backend_selection_and_execution() {
+        let runtime = ComputeRuntime::new();
+        let req = KernelRequirement {
+            fp64_required: false,
+            deterministic_required: false,
+            min_memory_bytes: 1024,
+            preferred_backend: None,
+        };
+
+        let backend = runtime.select_backend(&req).expect("CPU backend always available");
+        assert!(backend.capabilities().device_memory_bytes >= 1024);
+
+        let job = ComputeJob {
+            category: KernelCategory::LinearAlgebra,
+            requirement: req,
+            grid: GridDim { x: 1, y: 1, z: 1 },
+            block: BlockDim { x: 64, y: 1, z: 1 },
+        };
+
+        let cancel = CancellationToken::new();
+        let res = runtime.submit(cancel, job, &[]).await;
+        assert!(res.is_ok());
+    }
+}

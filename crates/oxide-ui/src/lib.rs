@@ -104,7 +104,7 @@ impl OxideApp {
         match message {
             OxideUiMessage::SwitchMode(new_mode) => {
                 self.mode = new_mode;
-                self.status_text = format!("Switched to {:?} mode", new_mode);
+                self.status_text = format!("Switched to {new_mode:?} mode");
             }
             OxideUiMessage::Viewport(vp_msg) => match vp_msg {
                 ViewportMessage::Orbit { dx, dy } => {
@@ -210,7 +210,7 @@ impl OxideApp {
             |acc, (mode, label)| {
                 let is_active = self.mode == *mode;
                 let display_label = if is_active {
-                    format!("▶ {}", label)
+                    format!("▶ {label}")
                 } else {
                     (*label).to_string()
                 };

@@ -17,6 +17,7 @@ robust.workspace = true
 tracing.workspace = true
 thiserror.workspace = true
 serde.workspace = true
+glam.workspace = true
 
 [lints]
 workspace = true

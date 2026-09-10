@@ -122,6 +122,40 @@ impl NodeMeshData {
         }
     }
 
+    /// Create a cylinder mesh given radius, height, and circumferential segments.
+    pub fn cylinder(radius: f32, height: f32, segments: usize) -> Self {
+        let segs = segments.max(3);
+        let hh = height * 0.5;
+        let mut positions = Vec::with_capacity((segs + 1) * 2 + 2);
+        let mut normals = Vec::with_capacity((segs + 1) * 2 + 2);
+        let mut indices = Vec::new();
+
+        // Side vertices
+        for i in 0..=segs {
+            let theta = (i as f32 / segs as f32) * std::f32::consts::TAU;
+            let cos_t = theta.cos();
+            let sin_t = theta.sin();
+            let n = [cos_t, 0.0, sin_t];
+
+            positions.push([cos_t * radius, -hh, sin_t * radius]);
+            normals.push(n);
+
+            positions.push([cos_t * radius, hh, sin_t * radius]);
+            normals.push(n);
+        }
+
+        for i in 0..segs {
+            let base = (i * 2) as u32;
+            indices.extend_from_slice(&[base, base + 1, base + 3, base, base + 3, base + 2]);
+        }
+
+        Self {
+            positions,
+            normals,
+            indices,
+        }
+    }
+
     /// Transform mesh vertices by translation offset and uniform scale.
     pub fn transform(&mut self, translation: [f32; 3], scale: [f32; 3]) {
         for pos in &mut self.positions {
@@ -214,6 +248,57 @@ impl OxideNode for CubeNode {
         };
 
         let mesh = NodeMeshData::cube(dx, dy, dz);
+        Ok(vec![NodeSocketValue::Mesh(mesh)])
+    }
+}
+
+/// Cylinder Primitive Node.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct CylinderNode;
+impl OxideNode for CylinderNode {
+    fn name(&self) -> &'static str {
+        "Cylinder Primitive"
+    }
+
+    fn inputs(&self) -> Vec<SocketDef> {
+        vec![
+            SocketDef {
+                name: "Radius".into(),
+                socket_type: "Float".into(),
+            },
+            SocketDef {
+                name: "Height".into(),
+                socket_type: "Float".into(),
+            },
+            SocketDef {
+                name: "Segments".into(),
+                socket_type: "Int".into(),
+            },
+        ]
+    }
+
+    fn outputs(&self) -> Vec<SocketDef> {
+        vec![SocketDef {
+            name: "Geometry".into(),
+            socket_type: "Mesh".into(),
+        }]
+    }
+
+    fn evaluate(&self, inputs: &[NodeSocketValue]) -> Result<Vec<NodeSocketValue>, NodeError> {
+        let r = match inputs.first() {
+            Some(NodeSocketValue::Float(f)) => *f as f32,
+            _ => 1.0,
+        };
+        let h = match inputs.get(1) {
+            Some(NodeSocketValue::Float(f)) => *f as f32,
+            _ => 2.0,
+        };
+        let segs = match inputs.get(2) {
+            Some(NodeSocketValue::Int(i)) => *i as usize,
+            _ => 16,
+        };
+
+        let mesh = NodeMeshData::cylinder(r, h, segs);
         Ok(vec![NodeSocketValue::Mesh(mesh)])
     }
 }
