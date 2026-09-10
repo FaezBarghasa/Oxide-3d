@@ -187,41 +187,112 @@ impl Surface3d {
 
 /// Tensor-product de Boor evaluation for bivariate NURBS surface.
 fn evaluate_nurbs_surface(
-    _degrees: (usize, usize),
+    degrees: (usize, usize),
     control_points: &[Vec<[f64; 4]>],
-    _knots_u: &[f64],
-    _knots_v: &[f64],
+    knots_u: &[f64],
+    knots_v: &[f64],
     u: f64,
     v: f64,
 ) -> [f64; 3] {
-    if control_points.is_empty() || control_points[0].is_empty() {
+    if control_points.is_empty() || control_points[0].is_empty() || knots_u.is_empty() || knots_v.is_empty() {
         return [0.0, 0.0, 0.0];
     }
-    let u_clamped = u.clamp(0.0, 1.0);
-    let v_clamped = v.clamp(0.0, 1.0);
 
-    let rows = control_points.len();
-    let cols = control_points[0].len();
+    let (p_u, p_v) = degrees;
+    let n_u = control_points.len();
+    let n_v = control_points[0].len();
 
-    let mut row_pts = Vec::with_capacity(rows);
-    for row in control_points {
-        let col_idx = (v_clamped * (cols - 1) as f64).round() as usize;
-        let pt = row
-            .get(col_idx.min(cols - 1))
-            .copied()
-            .unwrap_or([0.0, 0.0, 0.0, 1.0]);
-        row_pts.push(pt);
+    if knots_u.len() < n_u + p_u + 1 || knots_v.len() < n_v + p_v + 1 {
+        return [0.0, 0.0, 0.0];
     }
 
-    let row_idx = (u_clamped * (rows - 1) as f64).round() as usize;
-    let final_pt = row_pts
-        .get(row_idx.min(rows - 1))
-        .copied()
-        .unwrap_or([0.0, 0.0, 0.0, 1.0]);
-    let w = if final_pt[3].abs() > 1e-12 {
-        final_pt[3]
+    // 1. Evaluate along v-direction for each u-row to get intermediate control points in u
+    let mut temp_u_ctrl_pts: Vec<[f64; 4]> = Vec::with_capacity(n_u);
+    for row in control_points {
+        let pt_v_homog = evaluate_nurbs_curve_homog(p_v, row, knots_v, v);
+        temp_u_ctrl_pts.push(pt_v_homog);
+    }
+
+    // 2. Evaluate along u-direction using intermediate points
+    let final_homog = evaluate_nurbs_curve_homog(p_u, &temp_u_ctrl_pts, knots_u, u);
+    let w = if final_homog[3].abs() > 1e-12 {
+        final_homog[3]
     } else {
         1.0
     };
-    [final_pt[0] / w, final_pt[1] / w, final_pt[2] / w]
+
+    [final_homog[0] / w, final_homog[1] / w, final_homog[2] / w]
+}
+
+/// Helper to evaluate de Boor curve returning homogeneous coordinates [wx, wy, wz, w].
+fn evaluate_nurbs_curve_homog(
+    degree: usize,
+    control_points: &[[f64; 4]],
+    knots: &[f64],
+    t: f64,
+) -> [f64; 4] {
+    if control_points.is_empty() || knots.is_empty() {
+        return [0.0, 0.0, 0.0, 1.0];
+    }
+    let n = control_points.len();
+    let p = degree;
+
+    if knots.len() < n + p + 1 {
+        return [0.0, 0.0, 0.0, 1.0];
+    }
+
+    // Clamp t to knot bounds
+    let t_min = knots[p];
+    let t_max = knots[n];
+    let clamped_t = t.clamp(t_min, t_max);
+
+    // Find knot span k
+    let mut k = p;
+    for i in p..n {
+        if clamped_t >= knots[i] && clamped_t < knots[i + 1] {
+            k = i;
+            break;
+        }
+        if (clamped_t - t_max).abs() < 1e-9 {
+            k = n - 1;
+            break;
+        }
+    }
+
+    // Initialize working points in homogeneous coordinates
+    let mut d: Vec<[f64; 4]> = Vec::with_capacity(p + 1);
+    for j in 0..=p {
+        let idx = k.saturating_sub(p) + j;
+        let pt = control_points
+            .get(idx)
+            .copied()
+            .unwrap_or([0.0, 0.0, 0.0, 1.0]);
+        let w = pt[3];
+        d.push([pt[0] * w, pt[1] * w, pt[2] * w, w]);
+    }
+
+    // Triangular de Boor reduction
+    for r in 1..=p {
+        for j in (r..=p).rev() {
+            let idx = k.saturating_sub(p) + j;
+            let denom = knots.get(idx + p + 1 - r).copied().unwrap_or(1.0)
+                - knots.get(idx).copied().unwrap_or(0.0);
+            let alpha = if denom.abs() > 1e-12 {
+                (clamped_t - knots[idx]) / denom
+            } else {
+                0.0
+            };
+
+            let prev = d[j - 1];
+            let curr = d[j];
+            d[j] = [
+                (1.0 - alpha) * prev[0] + alpha * curr[0],
+                (1.0 - alpha) * prev[1] + alpha * curr[1],
+                (1.0 - alpha) * prev[2] + alpha * curr[2],
+                (1.0 - alpha) * prev[3] + alpha * curr[3],
+            ];
+        }
+    }
+
+    d[p]
 }
