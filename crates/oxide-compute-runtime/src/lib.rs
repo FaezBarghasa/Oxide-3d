@@ -1,6 +1,5 @@
 //! Oxide-3D Safe Async Compute Runtime, Job Scheduler, and Backend Auto-Selection.
 
-use std::sync::Arc;
 use oxide_backend_cpu::CpuBackend;
 use oxide_backend_cuda::CudaBackend;
 use oxide_backend_dx12::Dx12Backend;
@@ -10,10 +9,11 @@ use oxide_backend_rocm::RocmBackend;
 use oxide_backend_vulkan::VulkanBackend;
 use oxide_backend_wgpu::WgpuBackend;
 use oxide_hal::{
-    AcceleratorBackend, BackendCapabilities, BackendKind, BlockDim, ComputeError,
-    GridDim, KernelArg, KernelRequirement,
+    AcceleratorBackend, BackendCapabilities, BackendKind, BlockDim, ComputeError, GridDim,
+    KernelArg, KernelRequirement,
 };
 use oxide_kernels::{KernelCategory, KernelRegistry};
+use std::sync::Arc;
 use tokio_util::sync::CancellationToken;
 
 /// High-level compute job specification.
@@ -79,14 +79,18 @@ impl ComputeRuntime {
     }
 
     /// Select optimal backend satisfying the kernel requirements.
-    pub fn select_backend(&self, req: &KernelRequirement) -> Result<Arc<dyn AcceleratorBackend>, ComputeError> {
+    pub fn select_backend(
+        &self,
+        req: &KernelRequirement,
+    ) -> Result<Arc<dyn AcceleratorBackend>, ComputeError> {
         let best = self
             .backends
             .iter()
             .filter(|b| Self::satisfies(b.capabilities(), req))
             .max_by_key(|b| Self::score_backend(b.capabilities()));
 
-        best.cloned().ok_or(ComputeError::BackendUnavailable(BackendKind::Cpu))
+        best.cloned()
+            .ok_or(ComputeError::BackendUnavailable(BackendKind::Cpu))
     }
 
     fn satisfies(cap: &BackendCapabilities, req: &KernelRequirement) -> bool {
@@ -163,7 +167,9 @@ mod tests {
             preferred_backend: None,
         };
 
-        let backend = runtime.select_backend(&req).expect("CPU backend always available");
+        let backend = runtime
+            .select_backend(&req)
+            .expect("CPU backend always available");
         assert!(backend.capabilities().device_memory_bytes >= 1024);
 
         let job = ComputeJob {

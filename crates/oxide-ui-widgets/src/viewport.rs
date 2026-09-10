@@ -1,8 +1,8 @@
 //! Interactive 3D Viewport canvas widget with Orbit/Pan/Zoom camera controls.
 
 use iced::mouse::{self, Button, Cursor};
-use iced::widget::canvas::{Event, Frame, Geometry, Path, Program, Stroke};
 use iced::widget::Action;
+use iced::widget::canvas::{Event, Frame, Geometry, Path, Program, Stroke};
 use iced::{Color, Element, Length, Point, Rectangle, Renderer, Theme};
 use oxide_render::{Camera, TriMesh};
 
@@ -103,7 +103,9 @@ impl<'a> Program<ViewportMessage, Theme, Renderer> for ViewportWidget<'a> {
                         let dx = cursor_position.x - prev_pos.x;
                         let dy = cursor_position.y - prev_pos.y;
                         match state.drag_mode {
-                            DragMode::Orbit => Some(Action::publish(ViewportMessage::Orbit { dx, dy })),
+                            DragMode::Orbit => {
+                                Some(Action::publish(ViewportMessage::Orbit { dx, dy }))
+                            }
                             DragMode::Pan => Some(Action::publish(ViewportMessage::Pan { dx, dy })),
                             DragMode::None => None,
                         }

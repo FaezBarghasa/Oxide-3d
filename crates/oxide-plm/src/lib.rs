@@ -1,8 +1,8 @@
 //! Oxide-3D Product Lifecycle Management (PLM), Item Masters, Revisions, and BOM hierarchies.
 
+use petgraph::Directed;
 use petgraph::graph::NodeIndex;
 use petgraph::visit::EdgeRef;
-use petgraph::Directed;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
@@ -121,8 +121,14 @@ impl PlmDatabase {
 
     /// Add a child component dependency into an assembly BOM.
     pub fn add_bom_child(&mut self, parent: ItemId, child: ItemId, quantity: f64) {
-        let p_idx = *self.node_map.entry(parent).or_insert_with(|| self.bom_graph.add_node(parent));
-        let c_idx = *self.node_map.entry(child).or_insert_with(|| self.bom_graph.add_node(child));
+        let p_idx = *self
+            .node_map
+            .entry(parent)
+            .or_insert_with(|| self.bom_graph.add_node(parent));
+        let c_idx = *self
+            .node_map
+            .entry(child)
+            .or_insert_with(|| self.bom_graph.add_node(child));
         self.bom_graph.add_edge(p_idx, c_idx, quantity);
     }
 
@@ -154,7 +160,10 @@ impl PlmDatabase {
         accum: &mut HashMap<ItemId, f64>,
     ) {
         if let Some(&node_idx) = self.node_map.get(&current) {
-            for edge in self.bom_graph.edges_directed(node_idx, petgraph::Direction::Outgoing) {
+            for edge in self
+                .bom_graph
+                .edges_directed(node_idx, petgraph::Direction::Outgoing)
+            {
                 let child_id = self.bom_graph[edge.target()];
                 let edge_qty = *edge.weight();
                 let effective_qty = edge_qty * multiplier;
@@ -225,12 +234,18 @@ mod tests {
 
         let rollup = plm.calculate_bom_rollup(top_id);
 
-        let bolt_entry = rollup.iter().find(|e| e.item.part_number == "STD-M4").unwrap();
+        let bolt_entry = rollup
+            .iter()
+            .find(|e| e.item.part_number == "STD-M4")
+            .unwrap();
         // 4 top bolts + (2 actuators * 4 bolts) = 12 total bolts
         assert_eq!(bolt_entry.total_quantity, 12.0);
         assert!((bolt_entry.extended_cost - 3.0).abs() < 1e-4);
 
-        let motor_entry = rollup.iter().find(|e| e.item.part_number == "PRT-101").unwrap();
+        let motor_entry = rollup
+            .iter()
+            .find(|e| e.item.part_number == "PRT-101")
+            .unwrap();
         // 2 actuators * 1 motor = 2 motors
         assert_eq!(motor_entry.total_quantity, 2.0);
         assert!((motor_entry.extended_cost - 70.0).abs() < 1e-4);

@@ -1,7 +1,7 @@
 //! Oxide-3D Headless Automation & CI Runner.
 
-use std::path::PathBuf;
 use clap::{Parser, Subcommand};
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "oxide-headless")]

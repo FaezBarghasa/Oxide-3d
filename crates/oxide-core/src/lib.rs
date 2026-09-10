@@ -17,4 +17,6 @@ pub use bus::CommandBus;
 pub use command::OxideCommand;
 pub use error::{CoreError, CoreResult};
 pub use event::{EventCallback, OxideEvent};
-pub use id::{EdgeKey, EntityKey, FaceKey, OperationId, PartKey, ShellKey, SolidKey, VertexKey, WireKey};
+pub use id::{
+    EdgeKey, EntityKey, FaceKey, OperationId, PartKey, ShellKey, SolidKey, VertexKey, WireKey,
+};

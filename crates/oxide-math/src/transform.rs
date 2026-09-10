@@ -40,7 +40,11 @@ impl Transform3 {
     /// Convert to nalgebra Isometry3 for physics and kinematics.
     #[must_use]
     pub fn to_nalgebra_isometry(&self) -> Isometry3<f64> {
-        let t = nalgebra::Translation3::new(self.translation[0], self.translation[1], self.translation[2]);
+        let t = nalgebra::Translation3::new(
+            self.translation[0],
+            self.translation[1],
+            self.translation[2],
+        );
         let q = nalgebra::UnitQuaternion::from_quaternion(nalgebra::Quaternion::new(
             self.rotation[3],
             self.rotation[0],

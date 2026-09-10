@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::id::{EntityKey, OperationId};
+use serde::{Deserialize, Serialize};
 
 /// Domain events emitted during CAD modeling, simulation, and document lifecycle.
 #[derive(Debug, Clone, Serialize, Deserialize)]

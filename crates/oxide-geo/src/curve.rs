@@ -122,7 +122,10 @@ fn evaluate_nurbs_curve(
     let mut d: Vec<[f64; 4]> = Vec::with_capacity(p + 1);
     for j in 0..=p {
         let idx = k.saturating_sub(p) + j;
-        let pt = control_points.get(idx).copied().unwrap_or([0.0, 0.0, 0.0, 1.0]);
+        let pt = control_points
+            .get(idx)
+            .copied()
+            .unwrap_or([0.0, 0.0, 0.0, 1.0]);
         let w = pt[3];
         d.push([pt[0] * w, pt[1] * w, pt[2] * w, w]);
     }
@@ -151,6 +154,10 @@ fn evaluate_nurbs_curve(
     }
 
     let result = d[p];
-    let w = if result[3].abs() > 1e-12 { result[3] } else { 1.0 };
+    let w = if result[3].abs() > 1e-12 {
+        result[3]
+    } else {
+        1.0
+    };
     [result[0] / w, result[1] / w, result[2] / w]
 }

@@ -148,17 +148,12 @@ impl MechanismWorld {
         let joint_data: GenericJoint = match joint_kind {
             JointKind::Fixed => FixedJointBuilder::new().into(),
             JointKind::Revolute { axis, limits } => {
-                let ax = Vector::new(
-                    axis[0] as Real,
-                    axis[1] as Real,
-                    axis[2] as Real,
-                );
+                let ax = Vector::new(axis[0] as Real, axis[1] as Real, axis[2] as Real);
                 let b1 = self.rigid_body_set.get(h1).unwrap();
                 let b2 = self.rigid_body_set.get(h2).unwrap();
                 let rel_offset = b2.translation() - b1.translation();
 
-                let mut rev = RevoluteJointBuilder::new(ax)
-                    .local_anchor2(-rel_offset);
+                let mut rev = RevoluteJointBuilder::new(ax).local_anchor2(-rel_offset);
 
                 if let Some(lim) = limits {
                     rev = rev.limits([lim[0] as Real, lim[1] as Real]);
@@ -166,31 +161,21 @@ impl MechanismWorld {
                 rev.into()
             }
             JointKind::Prismatic { axis, limits } => {
-                let ax = Vector::new(
-                    axis[0] as Real,
-                    axis[1] as Real,
-                    axis[2] as Real,
-                );
+                let ax = Vector::new(axis[0] as Real, axis[1] as Real, axis[2] as Real);
                 let b1 = self.rigid_body_set.get(h1).unwrap();
                 let b2 = self.rigid_body_set.get(h2).unwrap();
                 let rel_offset = b2.translation() - b1.translation();
 
-                let mut prism = PrismaticJointBuilder::new(ax)
-                    .local_anchor2(-rel_offset);
+                let mut prism = PrismaticJointBuilder::new(ax).local_anchor2(-rel_offset);
                 if let Some(lim) = limits {
                     prism = prism.limits([lim[0] as Real, lim[1] as Real]);
                 }
                 prism.into()
             }
-            JointKind::Gear { .. } => {
-                FixedJointBuilder::new().into()
-            }
+            JointKind::Gear { .. } => FixedJointBuilder::new().into(),
         };
 
-        Some(
-            self.impulse_joint_set
-                .insert(h1, h2, joint_data, true),
-        )
+        Some(self.impulse_joint_set.insert(h1, h2, joint_data, true))
     }
 
     /// Step the mechanism physics forward by `dt` seconds.
@@ -275,6 +260,10 @@ mod tests {
             .expect("Body position should be queryable");
 
         // The pendulum should have dropped in Y coordinate under gravity
-        assert!(pos[1] < 10.0, "Pendulum should drop in Y coordinate, got {}", pos[1]);
+        assert!(
+            pos[1] < 10.0,
+            "Pendulum should drop in Y coordinate, got {}",
+            pos[1]
+        );
     }
 }

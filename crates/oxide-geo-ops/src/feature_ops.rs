@@ -80,10 +80,9 @@ pub fn extrude_face(
         return None;
     }
 
-    let dir_len = (direction[0] * direction[0]
-        + direction[1] * direction[1]
-        + direction[2] * direction[2])
-        .sqrt();
+    let dir_len =
+        (direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2])
+            .sqrt();
     let norm_dir = if dir_len > 1e-12 {
         [
             direction[0] / dir_len,
@@ -105,7 +104,11 @@ pub fn extrude_face(
     let mut top_vertices = Vec::with_capacity(base_vertices.len());
     for &v_base in &base_vertices {
         let pt = db.vertices.get(v_base)?.point;
-        let top_pt = [pt[0] + offset_vec[0], pt[1] + offset_vec[1], pt[2] + offset_vec[2]];
+        let top_pt = [
+            pt[0] + offset_vec[0],
+            pt[1] + offset_vec[1],
+            pt[2] + offset_vec[2],
+        ];
         let v_top = db.add_vertex(top_pt);
         top_vertices.push(v_top);
     }
@@ -258,7 +261,12 @@ mod tests {
         let shell = db.shells.get(solid.outer_shell).unwrap();
         let face_key = shell.faces[0];
 
-        let extrude_solid = extrude_face(&mut db, face_key, [0.0, 0.0, 1.0], ExtrudeOptions::default());
+        let extrude_solid = extrude_face(
+            &mut db,
+            face_key,
+            [0.0, 0.0, 1.0],
+            ExtrudeOptions::default(),
+        );
         assert!(extrude_solid.is_some());
 
         let revolve_solid = revolve_face(&mut db, face_key, RevolveOptions::default());

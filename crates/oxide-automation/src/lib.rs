@@ -51,23 +51,14 @@ impl MacroRecorder {
                     script.push_str("doc = app.new_document()\n");
                 }
                 OxideCommand::CreateExtrude { distance, .. } => {
-                    script.push_str(&format!(
-                        "doc.create_extrude(distance={:.4})\n",
-                        distance
-                    ));
+                    script.push_str(&format!("doc.create_extrude(distance={:.4})\n", distance));
                 }
                 OxideCommand::CreateFillet { radius, .. } => {
-                    script.push_str(&format!(
-                        "doc.create_fillet(radius={:.4})\n",
-                        radius
-                    ));
+                    script.push_str(&format!("doc.create_fillet(radius={:.4})\n", radius));
                 }
                 OxideCommand::SaveDocument { path } => {
                     if let Some(p) = path {
-                        script.push_str(&format!(
-                            "doc.save(path={:?})\n",
-                            p.display().to_string()
-                        ));
+                        script.push_str(&format!("doc.save(path={:?})\n", p.display().to_string()));
                     } else {
                         script.push_str("doc.save()\n");
                     }

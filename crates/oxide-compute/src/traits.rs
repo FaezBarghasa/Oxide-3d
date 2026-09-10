@@ -119,16 +119,30 @@ pub trait ComputeDevice: Send + Sync {
     fn capabilities(&self) -> &DeviceCapabilities;
 
     /// Allocate a device buffer.
-    fn allocate_buffer(&self, size_bytes: usize, usage: BufferUsage) -> Result<BufferId, ComputeError>;
+    fn allocate_buffer(
+        &self,
+        size_bytes: usize,
+        usage: BufferUsage,
+    ) -> Result<BufferId, ComputeError>;
 
     /// Free an allocated device buffer.
     fn free_buffer(&self, buffer: BufferId) -> Result<(), ComputeError>;
 
     /// Copy data from host slice to device buffer.
-    fn write_buffer(&self, buffer: BufferId, offset_bytes: usize, data: &[u8]) -> Result<(), ComputeError>;
+    fn write_buffer(
+        &self,
+        buffer: BufferId,
+        offset_bytes: usize,
+        data: &[u8],
+    ) -> Result<(), ComputeError>;
 
     /// Read data from device buffer back to host.
-    fn read_buffer(&self, buffer: BufferId, offset_bytes: usize, out: &mut [u8]) -> Result<(), ComputeError>;
+    fn read_buffer(
+        &self,
+        buffer: BufferId,
+        offset_bytes: usize,
+        out: &mut [u8],
+    ) -> Result<(), ComputeError>;
 
     /// Compile a compute kernel from source or binary SPIR-V / PTX / MSL / HLSL / OpenCL C.
     fn compile_kernel(&self, name: &str, source: &str) -> Result<KernelId, ComputeError>;

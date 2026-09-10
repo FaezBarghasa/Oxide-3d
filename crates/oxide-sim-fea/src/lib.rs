@@ -1,7 +1,7 @@
 //! Oxide-3D Finite Element Analysis (FEA) Engine (Linear Static, Modal, Thermal).
 
-use faer::prelude::Solve;
 use faer::Mat;
+use faer::prelude::Solve;
 use oxide_sim_core::{ElementKind, LinearElasticMaterial, SimulationMesh};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;

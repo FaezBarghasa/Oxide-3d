@@ -28,6 +28,26 @@ pub enum Surface3d {
         /// Sphere radius.
         radius: f64,
     },
+    /// Conical surface.
+    Cone {
+        /// Apex point of cone [x, y, z].
+        apex: [f64; 3],
+        /// Axis direction vector [dx, dy, dz].
+        axis: [f64; 3],
+        /// Half angle in radians.
+        semi_angle: f64,
+    },
+    /// Toroidal surface.
+    Torus {
+        /// Center point of torus [x, y, z].
+        center: [f64; 3],
+        /// Axis normal of torus revolution [dx, dy, dz].
+        axis: [f64; 3],
+        /// Major radius (distance from center to tube center).
+        major_radius: f64,
+        /// Minor radius (tube radius).
+        minor_radius: f64,
+    },
     /// General B-Spline / NURBS surface.
     Nurbs {
         /// Degrees in (u, v) parameter directions.
@@ -76,7 +96,8 @@ impl Surface3d {
 
                 let theta = u * std::f64::consts::TAU;
                 let o = glam::DVec3::from_slice(origin);
-                let p = o + u_axis * (theta.cos() * radius) + v_axis * (theta.sin() * radius) + a * v;
+                let p =
+                    o + u_axis * (theta.cos() * radius) + v_axis * (theta.sin() * radius) + a * v;
                 [p.x, p.y, p.z]
             }
             Self::Sphere { center, radius } => {
@@ -87,6 +108,52 @@ impl Surface3d {
                 let y = c.y + radius * phi.sin();
                 let z = c.z + radius * phi.cos() * theta.sin();
                 [x, y, z]
+            }
+            Self::Cone {
+                apex,
+                axis,
+                semi_angle,
+            } => {
+                let a = glam::DVec3::from_slice(axis).normalize_or_zero();
+                let ref_axis = if a.x.abs() < 0.9 {
+                    glam::DVec3::X
+                } else {
+                    glam::DVec3::Y
+                };
+                let u_axis = a.cross(ref_axis).normalize();
+                let v_axis = a.cross(u_axis);
+
+                let theta = u * std::f64::consts::TAU;
+                let r = v * semi_angle.tan();
+                let ap = glam::DVec3::from_slice(apex);
+                let p = ap + a * v + u_axis * (theta.cos() * r) + v_axis * (theta.sin() * r);
+                [p.x, p.y, p.z]
+            }
+            Self::Torus {
+                center,
+                axis,
+                major_radius,
+                minor_radius,
+            } => {
+                let a = glam::DVec3::from_slice(axis).normalize_or_zero();
+                let ref_axis = if a.x.abs() < 0.9 {
+                    glam::DVec3::X
+                } else {
+                    glam::DVec3::Y
+                };
+                let u_axis = a.cross(ref_axis).normalize();
+                let v_axis = a.cross(u_axis);
+
+                let theta = u * std::f64::consts::TAU;
+                let phi = v * std::f64::consts::TAU;
+                let c = glam::DVec3::from_slice(center);
+                let tube_center =
+                    c + (u_axis * theta.cos() + v_axis * theta.sin()) * (*major_radius);
+                let radial_dir = (tube_center - c).normalize_or_zero();
+                let p = tube_center
+                    + radial_dir * (phi.cos() * minor_radius)
+                    + a * (phi.sin() * minor_radius);
+                [p.x, p.y, p.z]
             }
             Self::Nurbs {
                 degrees,
@@ -139,12 +206,22 @@ fn evaluate_nurbs_surface(
     let mut row_pts = Vec::with_capacity(rows);
     for row in control_points {
         let col_idx = (v_clamped * (cols - 1) as f64).round() as usize;
-        let pt = row.get(col_idx.min(cols - 1)).copied().unwrap_or([0.0, 0.0, 0.0, 1.0]);
+        let pt = row
+            .get(col_idx.min(cols - 1))
+            .copied()
+            .unwrap_or([0.0, 0.0, 0.0, 1.0]);
         row_pts.push(pt);
     }
 
     let row_idx = (u_clamped * (rows - 1) as f64).round() as usize;
-    let final_pt = row_pts.get(row_idx.min(rows - 1)).copied().unwrap_or([0.0, 0.0, 0.0, 1.0]);
-    let w = if final_pt[3].abs() > 1e-12 { final_pt[3] } else { 1.0 };
+    let final_pt = row_pts
+        .get(row_idx.min(rows - 1))
+        .copied()
+        .unwrap_or([0.0, 0.0, 0.0, 1.0]);
+    let w = if final_pt[3].abs() > 1e-12 {
+        final_pt[3]
+    } else {
+        1.0
+    };
     [final_pt[0] / w, final_pt[1] / w, final_pt[2] / w]
 }

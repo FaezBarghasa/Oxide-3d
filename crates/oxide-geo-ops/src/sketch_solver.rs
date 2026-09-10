@@ -1,7 +1,7 @@
 //! 2D Geometric Sketch Constraint Solver using Newton-Raphson nonlinear Jacobian iterations.
 
-use faer::prelude::Solve;
 use faer::Mat;
+use faer::prelude::Solve;
 use serde::{Deserialize, Serialize};
 
 /// 2D Point parameter in sketch solver.

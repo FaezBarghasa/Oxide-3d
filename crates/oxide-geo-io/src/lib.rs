@@ -32,7 +32,10 @@ pub struct TriangleMesh {
 }
 
 /// Export a triangle mesh to binary STL format.
-pub fn export_stl_binary<P: AsRef<Path>>(path: P, mesh: &TriangleMesh) -> Result<(), IoFormatError> {
+pub fn export_stl_binary<P: AsRef<Path>>(
+    path: P,
+    mesh: &TriangleMesh,
+) -> Result<(), IoFormatError> {
     let mut file = std::fs::File::create(path)?;
     let header = [0u8; 80];
     file.write_all(&header)?;
@@ -114,17 +117,29 @@ pub fn import_obj<P: AsRef<Path>>(path: P) -> Result<TriangleMesh, IoFormatError
         match parts[0] {
             "v" => {
                 if parts.len() >= 4 {
-                    let x: f32 = parts[1].parse().map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
-                    let y: f32 = parts[2].parse().map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
-                    let z: f32 = parts[3].parse().map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
+                    let x: f32 = parts[1]
+                        .parse()
+                        .map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
+                    let y: f32 = parts[2]
+                        .parse()
+                        .map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
+                    let z: f32 = parts[3]
+                        .parse()
+                        .map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
                     vertices.push([x, y, z]);
                 }
             }
             "vn" => {
                 if parts.len() >= 4 {
-                    let nx: f32 = parts[1].parse().map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
-                    let ny: f32 = parts[2].parse().map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
-                    let nz: f32 = parts[3].parse().map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
+                    let nx: f32 = parts[1]
+                        .parse()
+                        .map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
+                    let ny: f32 = parts[2]
+                        .parse()
+                        .map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
+                    let nz: f32 = parts[3]
+                        .parse()
+                        .map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
                     normals.push([nx, ny, nz]);
                 }
             }
@@ -132,7 +147,9 @@ pub fn import_obj<P: AsRef<Path>>(path: P) -> Result<TriangleMesh, IoFormatError
                 if parts.len() >= 4 {
                     let parse_idx = |token: &str| -> Result<u32, IoFormatError> {
                         let v_part = token.split('/').next().unwrap_or("1");
-                        let idx: u32 = v_part.parse().map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
+                        let idx: u32 = v_part
+                            .parse()
+                            .map_err(|e| IoFormatError::ParseError(format!("{e}")))?;
                         Ok(idx.saturating_sub(1)) // convert 1-based to 0-based
                     };
 
@@ -202,16 +219,8 @@ mod tests {
     #[test]
     fn test_obj_export_and_import() {
         let mesh = TriangleMesh {
-            vertices: vec![
-                [0.0, 0.0, 0.0],
-                [1.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0],
-            ],
-            normals: vec![
-                [0.0, 0.0, 1.0],
-                [0.0, 0.0, 1.0],
-                [0.0, 0.0, 1.0],
-            ],
+            vertices: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+            normals: vec![[0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0]],
             indices: vec![[0, 1, 2]],
         };
 

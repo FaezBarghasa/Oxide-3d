@@ -1,6 +1,6 @@
 //! Oxide-3D Collaboration Relay & Remote Compute Server.
 
-use axum::{routing::get, Router};
+use axum::{Router, routing::get};
 use std::net::SocketAddr;
 
 #[tokio::main]

@@ -18,6 +18,10 @@ pub enum KernelCategory {
     Voxelization,
     /// Mesh processing & Tessellation.
     MeshProcessing,
+    /// GPU Sculpting Brushes (Draw, Clay, Smooth, Flatten).
+    SculptBrush,
+    /// Voxel Remeshing & SDF reconstruction.
+    Remesh,
     /// Real-time rigid-body mechanism updates.
     Mechanism,
     /// Viewport PBR Shading & Picking.
@@ -45,6 +49,8 @@ impl KernelRegistry {
             KernelCategory::TopOpt => "simp_filter_f64",
             KernelCategory::Voxelization => "voxelize_mesh",
             KernelCategory::MeshProcessing => "mesh_tessellate",
+            KernelCategory::SculptBrush => "sculpt_brush_deform",
+            KernelCategory::Remesh => "voxel_remesh_openvdb",
             KernelCategory::Mechanism => "joint_solve_f64",
             KernelCategory::Rendering => "pbr_viewport",
         };

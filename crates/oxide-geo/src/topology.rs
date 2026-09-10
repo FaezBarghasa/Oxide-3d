@@ -148,7 +148,12 @@ impl TopologyDatabase {
     }
 
     /// Add an edge connecting two vertices.
-    pub fn add_edge(&mut self, start: VertexKey, end: VertexKey, curve: Option<Curve3d>) -> EdgeKey {
+    pub fn add_edge(
+        &mut self,
+        start: VertexKey,
+        end: VertexKey,
+        curve: Option<Curve3d>,
+    ) -> EdgeKey {
         self.edges.insert(Edge::new(start, end, curve))
     }
 
@@ -189,14 +194,15 @@ impl TopologyDatabase {
         let v011 = self.add_vertex([-hx, hy, hz]);
 
         // Helper to create a planar quad face
-        let mut make_quad = |p_verts: [VertexKey; 4], normal: [f64; 3], origin: [f64; 3]| -> FaceKey {
-            let e0 = self.add_edge(p_verts[0], p_verts[1], None);
-            let e1 = self.add_edge(p_verts[1], p_verts[2], None);
-            let e2 = self.add_edge(p_verts[2], p_verts[3], None);
-            let e3 = self.add_edge(p_verts[3], p_verts[0], None);
-            let wire = self.add_wire([e0, e1, e2, e3]);
-            self.add_face(wire, Surface3d::Plane { origin, normal })
-        };
+        let mut make_quad =
+            |p_verts: [VertexKey; 4], normal: [f64; 3], origin: [f64; 3]| -> FaceKey {
+                let e0 = self.add_edge(p_verts[0], p_verts[1], None);
+                let e1 = self.add_edge(p_verts[1], p_verts[2], None);
+                let e2 = self.add_edge(p_verts[2], p_verts[3], None);
+                let e3 = self.add_edge(p_verts[3], p_verts[0], None);
+                let wire = self.add_wire([e0, e1, e2, e3]);
+                self.add_face(wire, Surface3d::Plane { origin, normal })
+            };
 
         // 6 Faces
         let f_bottom = make_quad([v000, v100, v110, v010], [0.0, 0.0, -1.0], [0.0, 0.0, -hz]);
@@ -206,7 +212,10 @@ impl TopologyDatabase {
         let f_left = make_quad([v000, v010, v011, v001], [-1.0, 0.0, 0.0], [-hx, 0.0, 0.0]);
         let f_right = make_quad([v100, v101, v111, v110], [1.0, 0.0, 0.0], [hx, 0.0, 0.0]);
 
-        let shell = self.add_shell(vec![f_bottom, f_top, f_front, f_back, f_left, f_right], true);
+        let shell = self.add_shell(
+            vec![f_bottom, f_top, f_front, f_back, f_left, f_right],
+            true,
+        );
         self.add_solid(shell)
     }
 }

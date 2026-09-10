@@ -1,7 +1,7 @@
 //! Oxide-3D Native .oxd File Format Container and Persistence Engine.
 
-use std::path::Path;
 use serde::{Deserialize, Serialize};
+use std::path::Path;
 use thiserror::Error;
 use uuid::Uuid;
 
@@ -47,8 +47,8 @@ impl Default for OxdManifest {
 
 /// Save an `.oxd` manifest to a file path.
 pub fn save_manifest<P: AsRef<Path>>(path: P, manifest: &OxdManifest) -> Result<(), PersistError> {
-    let json = serde_json::to_vec_pretty(manifest)
-        .map_err(|e| PersistError::Format(e.to_string()))?;
+    let json =
+        serde_json::to_vec_pretty(manifest).map_err(|e| PersistError::Format(e.to_string()))?;
     std::fs::write(path, json)?;
     Ok(())
 }

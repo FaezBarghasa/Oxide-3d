@@ -192,6 +192,9 @@ mod tests {
 
         // The center of the obstacle should remain blocked
         let obs_idx = 10 * 40 + 15;
-        assert!(solver.solid_mask[obs_idx], "Cylinder obstacle mask should be set");
+        assert!(
+            solver.solid_mask[obs_idx],
+            "Cylinder obstacle mask should be set"
+        );
     }
 }

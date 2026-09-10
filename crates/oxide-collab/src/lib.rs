@@ -1,7 +1,7 @@
 //! Oxide-3D Multi-User Collaboration, CRDT Operation Log Sync, and Git Integration.
 
-use automerge::sync::{Message as SyncMessage, State as SyncState, SyncDoc};
 use automerge::AutoCommit;
+use automerge::sync::{Message as SyncMessage, State as SyncState, SyncDoc};
 use serde::{Deserialize, Serialize};
 
 /// Collaboration sync message transferred over WebSockets.
@@ -66,7 +66,8 @@ impl CollabSession {
 
     /// Receive and apply an incremental sync message from a peer.
     pub fn receive_sync_message(&mut self, payload: &[u8]) -> Result<(), String> {
-        let msg = SyncMessage::decode(payload).map_err(|e| format!("Failed to decode sync message: {e}"))?;
+        let msg = SyncMessage::decode(payload)
+            .map_err(|e| format!("Failed to decode sync message: {e}"))?;
         self.doc
             .sync()
             .receive_sync_message(&mut self.sync_state, msg)
@@ -92,8 +93,8 @@ impl CollabSession {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use automerge::transaction::Transactable;
     use automerge::ReadDoc;
+    use automerge::transaction::Transactable;
 
     #[test]
     fn test_crdt_sync_between_peers() {

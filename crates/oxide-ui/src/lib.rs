@@ -7,14 +7,16 @@ use oxide_core::command::OxideCommand;
 use oxide_core::id::EntityKey;
 use oxide_render::{Camera, TriMesh};
 use oxide_settings::OxideSettings;
-use oxide_ui_widgets::{viewport_canvas, ViewportMessage};
+use oxide_ui_widgets::{ViewportMessage, viewport_canvas};
 
 /// Application workspace modes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum WorkspaceMode {
-    /// 3D Part & Surface Modeling.
+    /// 3D Part & Surface Modeling (CAD).
     #[default]
     Model,
+    /// Organic Sculpting & Dyntopo.
+    Sculpt,
     /// Multi-Component Assemblies.
     Assembly,
     /// Procedural Geometry Nodes.
@@ -54,6 +56,14 @@ pub enum OxideUiMessage {
     ToolFillet,
     /// Boolean CSG operation.
     ToolBoolean,
+    /// Sculpt Draw brush.
+    ToolSculptDraw,
+    /// Sculpt Smooth brush.
+    ToolSculptSmooth,
+    /// Sculpt Clay strips brush.
+    ToolSculptClay,
+    /// Voxel remesh operation.
+    ToolRemesh,
     /// Meshing / FEA simulation setup.
     ToolFeaMesh,
     /// Export recorded commands as Python script.
@@ -75,6 +85,8 @@ pub struct OxideApp {
     pub active_mesh: TriMesh,
     /// Command recorder for Python automation macros.
     pub recorder: MacroRecorder,
+    /// Active tool name for PropertyManager.
+    pub active_tool_name: String,
 }
 
 impl Default for OxideApp {
@@ -88,6 +100,7 @@ impl Default for OxideApp {
             camera: Camera::default(),
             active_mesh: TriMesh::cube(2.0, [0.2, 0.6, 0.95, 0.85]),
             recorder,
+            active_tool_name: "Select".to_string(),
         }
     }
 }
@@ -135,9 +148,12 @@ impl OxideApp {
                 self.status_text = "Opening file dialog...".to_string();
             }
             OxideUiMessage::ToolSelect => {
-                self.status_text = "Selection mode: Left-click to select entities in 3D viewport".to_string();
+                self.active_tool_name = "Select".to_string();
+                self.status_text =
+                    "Selection mode: Left-click to select entities in 3D viewport".to_string();
             }
             OxideUiMessage::ToolExtrude => {
+                self.active_tool_name = "Extrude Boss/Base".to_string();
                 let cmd = OxideCommand::CreateExtrude {
                     profile: EntityKey::default(),
                     distance: 30.0,
@@ -150,6 +166,7 @@ impl OxideApp {
                 );
             }
             OxideUiMessage::ToolRevolve => {
+                self.active_tool_name = "Revolved Boss/Base".to_string();
                 let cmd = OxideCommand::CreateExtrude {
                     profile: EntityKey::default(),
                     distance: 360.0,
@@ -162,6 +179,7 @@ impl OxideApp {
                 );
             }
             OxideUiMessage::ToolFillet => {
+                self.active_tool_name = "Constant Fillet".to_string();
                 let cmd = OxideCommand::CreateFillet {
                     edges: vec![],
                     radius: 2.5,
@@ -174,11 +192,36 @@ impl OxideApp {
                 );
             }
             OxideUiMessage::ToolBoolean => {
+                self.active_tool_name = "Boolean CSG".to_string();
                 self.active_mesh = TriMesh::sphere(1.6, 20, 40, [0.85, 0.35, 0.85, 0.9]);
-                self.status_text = "Exact B-Rep CSG Union computed via adaptive predicates".to_string();
+                self.status_text =
+                    "Exact B-Rep CSG Union computed via adaptive predicates".to_string();
+            }
+            OxideUiMessage::ToolSculptDraw => {
+                self.active_tool_name = "Sculpt: Draw Brush".to_string();
+                self.status_text =
+                    "Sculpt Draw: Displace vertices along surface normal".to_string();
+            }
+            OxideUiMessage::ToolSculptSmooth => {
+                self.active_tool_name = "Sculpt: Smooth Brush".to_string();
+                self.status_text =
+                    "Sculpt Smooth: Laplacian smoothing applied to brush radius".to_string();
+            }
+            OxideUiMessage::ToolSculptClay => {
+                self.active_tool_name = "Sculpt: Clay Strips".to_string();
+                self.status_text = "Sculpt Clay Strips: Layering volume strokes".to_string();
+            }
+            OxideUiMessage::ToolRemesh => {
+                self.active_tool_name = "Voxel Remesh".to_string();
+                self.status_text =
+                    "Voxel Remeshing: Generating uniform watertight quad/triangle topology"
+                        .to_string();
             }
             OxideUiMessage::ToolFeaMesh => {
-                self.status_text = "FEA Discretization: 1,420 Tet4 solid elements, 342 nodes assembled".to_string();
+                self.active_tool_name = "FEA Discretization".to_string();
+                self.status_text =
+                    "FEA Discretization: 1,420 Tet4 solid elements, 342 nodes assembled"
+                        .to_string();
             }
             OxideUiMessage::ExportMacro => {
                 let py = self.recorder.export_python_script();
@@ -196,6 +239,7 @@ impl OxideApp {
     pub fn view(&self) -> Element<'_, OxideUiMessage> {
         let modes = [
             (WorkspaceMode::Model, "Model (CAD)"),
+            (WorkspaceMode::Sculpt, "Sculpt"),
             (WorkspaceMode::Assembly, "Assembly"),
             (WorkspaceMode::Nodes, "Nodes"),
             (WorkspaceMode::Simulation, "Simulation"),
@@ -206,7 +250,9 @@ impl OxideApp {
         ];
 
         let mode_buttons = modes.iter().fold(
-            row![text("OXIDE-3D").size(18)].spacing(8).align_y(Alignment::Center),
+            row![text("OXIDE-3D").size(18)]
+                .spacing(8)
+                .align_y(Alignment::Center),
             |acc, (mode, label)| {
                 let is_active = self.mode == *mode;
                 let display_label = if is_active {
@@ -242,9 +288,24 @@ impl OxideApp {
         )
         .padding(6);
 
-        // Sidebar tools
-        let sidebar = container(
-            column![
+        // Sidebar tools contextually styled for CAD vs Sculpt
+        let sidebar_content = match self.mode {
+            WorkspaceMode::Sculpt => column![
+                text("Sculpt Brushes").size(14),
+                button(text("Draw (V)").size(12))
+                    .width(Length::Fill)
+                    .on_press(OxideUiMessage::ToolSculptDraw),
+                button(text("Clay Strips (C)").size(12))
+                    .width(Length::Fill)
+                    .on_press(OxideUiMessage::ToolSculptClay),
+                button(text("Smooth (S)").size(12))
+                    .width(Length::Fill)
+                    .on_press(OxideUiMessage::ToolSculptSmooth),
+                button(text("Voxel Remesh").size(12))
+                    .width(Length::Fill)
+                    .on_press(OxideUiMessage::ToolRemesh),
+            ],
+            _ => column![
                 text("CAD / CAE Tools").size(14),
                 button(text("Select").size(12))
                     .width(Length::Fill)
@@ -264,21 +325,36 @@ impl OxideApp {
                 button(text("Meshing / FEA").size(12))
                     .width(Length::Fill)
                     .on_press(OxideUiMessage::ToolFeaMesh),
-            ]
-            .spacing(8)
-            .padding(10)
-            .width(Length::Fixed(160.0)),
+            ],
+        };
+
+        let sidebar = container(
+            sidebar_content
+                .spacing(8)
+                .padding(10)
+                .width(Length::Fixed(160.0)),
         );
 
         // Interactive 3D Viewport canvas
         let viewport = viewport_canvas(&self.camera, &self.active_mesh, OxideUiMessage::Viewport);
 
-        // Tree / Properties right panel
+        // Tree / Properties right panel (FeatureManager & PropertyManager)
         let right_panel = container(
             column![
-                text("Feature Tree").size(14),
+                text("PropertyManager").size(14),
+                text(format!("Active Tool: {}", self.active_tool_name)).size(12),
+                text("───────────────────").size(10),
+                text("FeatureManager Tree").size(14),
                 text("• Active Solid Body").size(12),
-                text(format!("• Mesh Triangles: {}", self.active_mesh.indices.len() / 3)).size(12),
+                text("  ├─ Sketch.1 (Plane.XY)").size(11),
+                text("  ├─ Extrude.1 (30.0mm)").size(11),
+                text("  └─ Fillet.1 (R 2.5mm)").size(11),
+                text("───────────────────").size(10),
+                text(format!(
+                    "• Mesh Triangles: {}",
+                    self.active_mesh.indices.len() / 3
+                ))
+                .size(12),
                 text(format!("• Vertices: {}", self.active_mesh.vertices.len())).size(12),
                 text("Camera XYZ:").size(12),
                 text(format!(
@@ -287,11 +363,15 @@ impl OxideApp {
                 ))
                 .size(11),
                 text("Recorded Macro:").size(12),
-                text(format!("{} commands", self.recorder.recorded_commands.len())).size(11),
+                text(format!(
+                    "{} commands",
+                    self.recorder.recorded_commands.len()
+                ))
+                .size(11),
             ]
             .spacing(8)
             .padding(10)
-            .width(Length::Fixed(200.0)),
+            .width(Length::Fixed(220.0)),
         );
 
         let center_area = row![sidebar, viewport, right_panel]
@@ -320,7 +400,15 @@ mod tests {
         let mut app = OxideApp::new();
         assert_eq!(app.mode, WorkspaceMode::Model);
 
-        // Switch modes
+        // Switch to Sculpt mode
+        let _ = app.update(OxideUiMessage::SwitchMode(WorkspaceMode::Sculpt));
+        assert_eq!(app.mode, WorkspaceMode::Sculpt);
+
+        // Tool sculpt draw
+        let _ = app.update(OxideUiMessage::ToolSculptDraw);
+        assert_eq!(app.active_tool_name, "Sculpt: Draw Brush");
+
+        // Switch to Simulation mode
         let _ = app.update(OxideUiMessage::SwitchMode(WorkspaceMode::Simulation));
         assert_eq!(app.mode, WorkspaceMode::Simulation);
 
@@ -345,4 +433,3 @@ mod tests {
         assert!(py.contains("doc.create_fillet"));
     }
 }
-

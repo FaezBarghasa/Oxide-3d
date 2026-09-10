@@ -2,7 +2,7 @@
 
 pub mod viewport;
 
-pub use viewport::{viewport_canvas, ViewportMessage, ViewportState, ViewportWidget};
+pub use viewport::{ViewportMessage, ViewportState, ViewportWidget, viewport_canvas};
 
 use serde::{Deserialize, Serialize};
 

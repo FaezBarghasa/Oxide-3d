@@ -1,7 +1,7 @@
 //! Oxide-3D Telemetry, structured logs, and metrics.
 
 use thiserror::Error;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
 /// Telemetry initialization errors.
 #[derive(Debug, Error)]
@@ -13,8 +13,8 @@ pub enum TelemetryError {
 
 /// Initialize tracing with environment filtering and console output.
 pub fn init() -> Result<(), TelemetryError> {
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info,oxide=debug"));
+    let filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info,oxide=debug"));
 
     let fmt_layer = tracing_subscriber::fmt::layer()
         .with_target(true)

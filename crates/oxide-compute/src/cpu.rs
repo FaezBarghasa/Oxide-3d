@@ -1,11 +1,11 @@
 //! CPU Parallel compute backend using Rayon and SIMD-friendly vector operations.
 
-use std::collections::HashMap;
-use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::RwLock;
 use crate::traits::{
     BackendKind, BufferId, BufferUsage, ComputeDevice, ComputeError, DeviceCapabilities, KernelId,
 };
+use std::collections::HashMap;
+use std::sync::RwLock;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 /// CPU compute device backed by Rayon thread pools.
 pub struct CpuComputeDevice {
@@ -58,35 +58,69 @@ impl ComputeDevice for CpuComputeDevice {
         &self.capabilities
     }
 
-    fn allocate_buffer(&self, size_bytes: usize, _usage: BufferUsage) -> Result<BufferId, ComputeError> {
+    fn allocate_buffer(
+        &self,
+        size_bytes: usize,
+        _usage: BufferUsage,
+    ) -> Result<BufferId, ComputeError> {
         let id = BufferId(self.next_buffer_id.fetch_add(1, Ordering::SeqCst));
         let buf = vec![0u8; size_bytes];
-        let mut map = self.buffers.write().map_err(|e| ComputeError::OutOfMemory(e.to_string()))?;
+        let mut map = self
+            .buffers
+            .write()
+            .map_err(|e| ComputeError::OutOfMemory(e.to_string()))?;
         map.insert(id, buf);
         Ok(id)
     }
 
     fn free_buffer(&self, buffer: BufferId) -> Result<(), ComputeError> {
-        let mut map = self.buffers.write().map_err(|e| ComputeError::InvalidHandle(e.to_string()))?;
+        let mut map = self
+            .buffers
+            .write()
+            .map_err(|e| ComputeError::InvalidHandle(e.to_string()))?;
         map.remove(&buffer);
         Ok(())
     }
 
-    fn write_buffer(&self, buffer: BufferId, offset_bytes: usize, data: &[u8]) -> Result<(), ComputeError> {
-        let mut map = self.buffers.write().map_err(|e| ComputeError::TransferError(e.to_string()))?;
-        let buf = map.get_mut(&buffer).ok_or_else(|| ComputeError::InvalidHandle("Buffer not found".to_string()))?;
+    fn write_buffer(
+        &self,
+        buffer: BufferId,
+        offset_bytes: usize,
+        data: &[u8],
+    ) -> Result<(), ComputeError> {
+        let mut map = self
+            .buffers
+            .write()
+            .map_err(|e| ComputeError::TransferError(e.to_string()))?;
+        let buf = map
+            .get_mut(&buffer)
+            .ok_or_else(|| ComputeError::InvalidHandle("Buffer not found".to_string()))?;
         if offset_bytes + data.len() > buf.len() {
-            return Err(ComputeError::TransferError("Buffer write out of bounds".to_string()));
+            return Err(ComputeError::TransferError(
+                "Buffer write out of bounds".to_string(),
+            ));
         }
         buf[offset_bytes..offset_bytes + data.len()].copy_from_slice(data);
         Ok(())
     }
 
-    fn read_buffer(&self, buffer: BufferId, offset_bytes: usize, out: &mut [u8]) -> Result<(), ComputeError> {
-        let map = self.buffers.read().map_err(|e| ComputeError::TransferError(e.to_string()))?;
-        let buf = map.get(&buffer).ok_or_else(|| ComputeError::InvalidHandle("Buffer not found".to_string()))?;
+    fn read_buffer(
+        &self,
+        buffer: BufferId,
+        offset_bytes: usize,
+        out: &mut [u8],
+    ) -> Result<(), ComputeError> {
+        let map = self
+            .buffers
+            .read()
+            .map_err(|e| ComputeError::TransferError(e.to_string()))?;
+        let buf = map
+            .get(&buffer)
+            .ok_or_else(|| ComputeError::InvalidHandle("Buffer not found".to_string()))?;
         if offset_bytes + out.len() > buf.len() {
-            return Err(ComputeError::TransferError("Buffer read out of bounds".to_string()));
+            return Err(ComputeError::TransferError(
+                "Buffer read out of bounds".to_string(),
+            ));
         }
         out.copy_from_slice(&buf[offset_bytes..offset_bytes + out.len()]);
         Ok(())

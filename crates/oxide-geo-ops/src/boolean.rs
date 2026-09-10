@@ -183,11 +183,7 @@ pub fn boolean_op(
 }
 
 /// Helper to generate a watertight 6-face solid box from min and max 3D coordinates.
-fn create_box_from_bounds(
-    db: &mut TopologyDatabase,
-    min: [f64; 3],
-    max: [f64; 3],
-) -> SolidKey {
+fn create_box_from_bounds(db: &mut TopologyDatabase, min: [f64; 3], max: [f64; 3]) -> SolidKey {
     let v000 = db.add_vertex([min[0], min[1], min[2]]);
     let v100 = db.add_vertex([max[0], min[1], min[2]]);
     let v110 = db.add_vertex([max[0], max[1], min[2]]);
@@ -206,14 +202,41 @@ fn create_box_from_bounds(
         db.add_face(wire, Surface3d::Plane { origin, normal })
     };
 
-    let f_bottom = make_quad([v000, v100, v110, v010], [0.0, 0.0, -1.0], [0.0, 0.0, min[2]]);
-    let f_top = make_quad([v001, v011, v111, v101], [0.0, 0.0, 1.0], [0.0, 0.0, max[2]]);
-    let f_front = make_quad([v000, v001, v101, v100], [0.0, -1.0, 0.0], [0.0, min[1], 0.0]);
-    let f_back = make_quad([v010, v110, v111, v011], [0.0, 1.0, 0.0], [0.0, max[1], 0.0]);
-    let f_left = make_quad([v000, v010, v011, v001], [-1.0, 0.0, 0.0], [min[0], 0.0, 0.0]);
-    let f_right = make_quad([v100, v101, v111, v110], [1.0, 0.0, 0.0], [max[0], 0.0, 0.0]);
+    let f_bottom = make_quad(
+        [v000, v100, v110, v010],
+        [0.0, 0.0, -1.0],
+        [0.0, 0.0, min[2]],
+    );
+    let f_top = make_quad(
+        [v001, v011, v111, v101],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, max[2]],
+    );
+    let f_front = make_quad(
+        [v000, v001, v101, v100],
+        [0.0, -1.0, 0.0],
+        [0.0, min[1], 0.0],
+    );
+    let f_back = make_quad(
+        [v010, v110, v111, v011],
+        [0.0, 1.0, 0.0],
+        [0.0, max[1], 0.0],
+    );
+    let f_left = make_quad(
+        [v000, v010, v011, v001],
+        [-1.0, 0.0, 0.0],
+        [min[0], 0.0, 0.0],
+    );
+    let f_right = make_quad(
+        [v100, v101, v111, v110],
+        [1.0, 0.0, 0.0],
+        [max[0], 0.0, 0.0],
+    );
 
-    let shell = db.add_shell(vec![f_bottom, f_top, f_front, f_back, f_left, f_right], true);
+    let shell = db.add_shell(
+        vec![f_bottom, f_top, f_front, f_back, f_left, f_right],
+        true,
+    );
     db.add_solid(shell)
 }
 
@@ -239,14 +262,15 @@ mod tests {
         let v111 = db.add_vertex([20.0, 20.0, 20.0]);
         let v011 = db.add_vertex([0.0, 20.0, 20.0]);
 
-        let mut make_quad = |p_verts: [VertexKey; 4], normal: [f64; 3], origin: [f64; 3]| -> FaceKey {
-            let e0 = db.add_edge(p_verts[0], p_verts[1], None);
-            let e1 = db.add_edge(p_verts[1], p_verts[2], None);
-            let e2 = db.add_edge(p_verts[2], p_verts[3], None);
-            let e3 = db.add_edge(p_verts[3], p_verts[0], None);
-            let wire = db.add_wire([e0, e1, e2, e3]);
-            db.add_face(wire, Surface3d::Plane { origin, normal })
-        };
+        let mut make_quad =
+            |p_verts: [VertexKey; 4], normal: [f64; 3], origin: [f64; 3]| -> FaceKey {
+                let e0 = db.add_edge(p_verts[0], p_verts[1], None);
+                let e1 = db.add_edge(p_verts[1], p_verts[2], None);
+                let e2 = db.add_edge(p_verts[2], p_verts[3], None);
+                let e3 = db.add_edge(p_verts[3], p_verts[0], None);
+                let wire = db.add_wire([e0, e1, e2, e3]);
+                db.add_face(wire, Surface3d::Plane { origin, normal })
+            };
 
         let f_bottom = make_quad([v000, v100, v110, v010], [0.0, 0.0, -1.0], [0.0, 0.0, 0.0]);
         let f_top = make_quad([v001, v011, v111, v101], [0.0, 0.0, 1.0], [0.0, 0.0, 20.0]);
@@ -255,7 +279,10 @@ mod tests {
         let f_left = make_quad([v000, v010, v011, v001], [-1.0, 0.0, 0.0], [0.0, 0.0, 0.0]);
         let f_right = make_quad([v100, v101, v111, v110], [1.0, 0.0, 0.0], [20.0, 0.0, 0.0]);
 
-        let shell_b = db.add_shell(vec![f_bottom, f_top, f_front, f_back, f_left, f_right], true);
+        let shell_b = db.add_shell(
+            vec![f_bottom, f_top, f_front, f_back, f_left, f_right],
+            true,
+        );
         let box_b = db.add_solid(shell_b);
 
         // Test Intersection: should be [0, 0, 0] to [10, 10, 10]

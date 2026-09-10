@@ -1,12 +1,12 @@
 //! Host CPU backend for Oxide-3D using Rayon work-stealing parallelism and SIMD.
 
-use std::collections::HashMap;
-use std::sync::atomic::{AtomicU64, Ordering};
 use oxide_hal::{
     AcceleratorBackend, BackendCapabilities, BackendKind, BlockDim, ComputeError, DeviceBuffer,
     GridDim, KernelArg, KernelEvent, KernelHandle,
 };
 use parking_lot::RwLock;
+use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 /// CPU execution backend.
 pub struct CpuBackend {
@@ -87,11 +87,13 @@ impl AcceleratorBackend for CpuBackend {
 
     fn download_bytes(&self, buffer: &DeviceBuffer, out: &mut [u8]) -> Result<(), ComputeError> {
         let lock = self.buffers.read();
-        let src = lock.get(&buffer.id).ok_or_else(|| {
-            ComputeError::TransferError("Buffer handle not found".to_string())
-        })?;
+        let src = lock
+            .get(&buffer.id)
+            .ok_or_else(|| ComputeError::TransferError("Buffer handle not found".to_string()))?;
         if out.len() > src.len() {
-            return Err(ComputeError::TransferError("Destination buffer too small".to_string()));
+            return Err(ComputeError::TransferError(
+                "Destination buffer too small".to_string(),
+            ));
         }
         out.copy_from_slice(&src[..out.len()]);
         Ok(())

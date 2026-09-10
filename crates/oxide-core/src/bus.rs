@@ -1,7 +1,7 @@
-use std::sync::{Arc, Mutex};
 use crate::command::OxideCommand;
 use crate::error::CoreResult;
 use crate::event::{EventCallback, OxideEvent};
+use std::sync::{Arc, Mutex};
 
 /// Central command dispatcher and event bus for Oxide-3D.
 #[derive(Default)]
