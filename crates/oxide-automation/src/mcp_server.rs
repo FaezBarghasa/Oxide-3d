@@ -3,9 +3,9 @@
 //! Enables external AI agents and automation tools to control Oxide-3D via JSON-RPC 2.0.
 //! Supports session initialization, entity inspection, command execution, and viewport snapshot queries.
 
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
+use std::collections::HashMap;
 
 /// MCP Protocol Version string.
 pub const MCP_PROTOCOL_VERSION: &str = "2024-11-05";
@@ -250,7 +250,10 @@ impl McpServer {
 
                 match tool_name {
                     "cad_execute_command" => {
-                        let cmd = arguments.get("command").and_then(|v| v.as_str()).unwrap_or("");
+                        let cmd = arguments
+                            .get("command")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("");
                         self.executed_commands.push(cmd.to_string());
                         self.session.entity_count += 1;
                         let content = vec![json!({
@@ -264,16 +267,17 @@ impl McpServer {
                             error: None,
                         }
                     }
-                    "cad_get_state" => {
-                        McpResponse {
-                            jsonrpc: "2.0".to_string(),
-                            id,
-                            result: Some(json!({ "state": self.session })),
-                            error: None,
-                        }
-                    }
+                    "cad_get_state" => McpResponse {
+                        jsonrpc: "2.0".to_string(),
+                        id,
+                        result: Some(json!({ "state": self.session })),
+                        error: None,
+                    },
                     "cad_create_layer" => {
-                        let layer_name = arguments.get("name").and_then(|v| v.as_str()).unwrap_or("NewLayer");
+                        let layer_name = arguments
+                            .get("name")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("NewLayer");
                         self.session.active_layer = layer_name.to_string();
                         let content = vec![json!({
                             "type": "text",
@@ -287,8 +291,14 @@ impl McpServer {
                         }
                     }
                     "cad_export_file" => {
-                        let path = arguments.get("file_path").and_then(|v| v.as_str()).unwrap_or("");
-                        let fmt = arguments.get("format").and_then(|v| v.as_str()).unwrap_or("");
+                        let path = arguments
+                            .get("file_path")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("");
+                        let fmt = arguments
+                            .get("format")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("");
                         let content = vec![json!({
                             "type": "text",
                             "text": format!("Exported active drawing to '{path}' in format '{fmt}'.")

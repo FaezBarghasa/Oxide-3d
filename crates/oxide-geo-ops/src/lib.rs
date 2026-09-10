@@ -6,6 +6,9 @@ pub mod kernel;
 pub mod sketch_solver;
 
 pub use boolean::{BooleanKind, BooleanOptions};
-pub use feature_ops::{ExtrudeOptions, FilletOptions, RevolveOptions, extrude_face, revolve_face};
+pub use feature_ops::{
+    ExtrudeOptions, FilletOptions, RevolveOptions, create_primitive_box, create_primitive_cylinder,
+    create_primitive_pyramid, direct_offset_face, extrude_face, revolve_face,
+};
 pub use kernel::{GeometryKernel, KernelError, KernelResult, NativeGeometryKernel};
 pub use sketch_solver::{SketchConstraint, SketchPoint2d, SketchSolver};

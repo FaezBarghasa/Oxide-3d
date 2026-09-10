@@ -7,13 +7,13 @@
 //! - Binary DWG Header and Metadata detection
 //! - Autosave (`.sv$`) and Backup (`.bak`) recovery pipelines
 
+use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
-use serde::{Deserialize, Serialize};
 
-use oxide_geo::{DraftingDatabase2D, DraftingEntity2D, Point2D};
 use crate::IoFormatError;
+use oxide_geo::{DraftingDatabase2D, DraftingEntity2D, Point2D};
 
 /// DXF Code-Value Pair.
 #[derive(Debug, Clone, PartialEq)]
@@ -119,10 +119,18 @@ impl DxfCodec {
                         writeln!(file, " 10\n{:.6}\n 20\n{:.6}", v.x, v.y)?;
                     }
                 }
-                DraftingEntity2D::Text { position, content, height } => {
+                DraftingEntity2D::Text {
+                    position,
+                    content,
+                    height,
+                } => {
                     writeln!(file, "  0\nTEXT")?;
                     writeln!(file, "  8\n{}", db.active_layer_name)?;
-                    writeln!(file, " 10\n{:.6}\n 20\n{:.6}\n 30\n0.0", position.x, position.y)?;
+                    writeln!(
+                        file,
+                        " 10\n{:.6}\n 20\n{:.6}\n 30\n0.0",
+                        position.x, position.y
+                    )?;
                     writeln!(file, " 40\n{:.4}", height)?;
                     writeln!(file, "  1\n{}", content)?;
                 }
@@ -164,7 +172,8 @@ impl DxfCodec {
         while i < pairs.len() {
             let pair = &pairs[i];
             if pair.code == 0 && pair.value == "SECTION" {
-                if i + 1 < pairs.len() && pairs[i + 1].code == 2 && pairs[i + 1].value == "ENTITIES" {
+                if i + 1 < pairs.len() && pairs[i + 1].code == 2 && pairs[i + 1].value == "ENTITIES"
+                {
                     in_entities = true;
                     i += 2;
                     continue;
@@ -205,7 +214,8 @@ impl DxfCodec {
                             }
                             i += 1;
                         }
-                        db.entities.push(DraftingEntity2D::Circle { center, radius });
+                        db.entities
+                            .push(DraftingEntity2D::Circle { center, radius });
                         continue;
                     }
                     "LWPOLYLINE" => {

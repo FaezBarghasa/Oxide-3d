@@ -6,8 +6,8 @@
 //! - Multileader (`MLeader`) with leader lines, landing, and dogleg
 //! - Paper Space Layouts (`PaperLayout`) with viewports (`Viewport2D`) and scaling (1:1, 1:50, 1:100)
 
-use serde::{Deserialize, Serialize};
 use crate::drafting_2d::Point2D;
+use serde::{Deserialize, Serialize};
 
 /// Dimension Type classification matching AutoCAD / OpenCADStudio standards.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

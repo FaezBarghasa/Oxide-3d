@@ -249,6 +249,89 @@ pub fn revolve_face(
     Some(db.add_solid(shell))
 }
 
+/// Create a parametric 3D box solid primitive in the topology database.
+pub fn create_primitive_box(db: &mut TopologyDatabase, dx: f64, dy: f64, dz: f64) -> SolidKey {
+    db.make_box(dx, dy, dz)
+}
+
+/// Create a parametric 3D cylinder solid primitive in the topology database.
+pub fn create_primitive_cylinder(
+    db: &mut TopologyDatabase,
+    radius: f64,
+    height: f64,
+    segments: usize,
+) -> SolidKey {
+    db.make_cylinder(radius, height, segments)
+}
+
+/// Create a parametric 3D regular pyramid solid primitive in the topology database.
+pub fn create_primitive_pyramid(
+    db: &mut TopologyDatabase,
+    base_size: f64,
+    height: f64,
+) -> SolidKey {
+    db.make_pyramid(base_size, height)
+}
+
+/// Apply a direct modeling offset to all vertices of a planar face along its normal.
+pub fn direct_offset_face(
+    db: &mut TopologyDatabase,
+    face_key: FaceKey,
+    offset_distance: f64,
+) -> bool {
+    let (normal, vertex_keys) = match db.faces.get(face_key) {
+        Some(face) => {
+            let n = match &face.surface {
+                Surface3d::Plane { normal, .. } => *normal,
+                _ => return false,
+            };
+            let wire = match db.wires.get(face.outer_wire) {
+                Some(w) => w,
+                None => return false,
+            };
+            let mut v_keys = Vec::new();
+            for &edge_key in &wire.edges {
+                if let Some(edge) = db.edges.get(edge_key) {
+                    v_keys.push(edge.start);
+                }
+            }
+            (n, v_keys)
+        }
+        None => return false,
+    };
+
+    let len = (normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]).sqrt();
+    let norm = if len > 1e-12 {
+        [normal[0] / len, normal[1] / len, normal[2] / len]
+    } else {
+        [0.0, 0.0, 1.0]
+    };
+
+    let delta = [
+        norm[0] * offset_distance,
+        norm[1] * offset_distance,
+        norm[2] * offset_distance,
+    ];
+
+    for v_key in vertex_keys {
+        if let Some(v) = db.vertices.get_mut(v_key) {
+            v.point[0] += delta[0];
+            v.point[1] += delta[1];
+            v.point[2] += delta[2];
+        }
+    }
+
+    if let Some(face) = db.faces.get_mut(face_key) {
+        if let Surface3d::Plane { origin, .. } = &mut face.surface {
+            origin[0] += delta[0];
+            origin[1] += delta[1];
+            origin[2] += delta[2];
+        }
+    }
+
+    true
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -271,5 +354,25 @@ mod tests {
 
         let revolve_solid = revolve_face(&mut db, face_key, RevolveOptions::default());
         assert!(revolve_solid.is_some());
+    }
+
+    #[test]
+    fn test_primitive_constructors_and_direct_offset() {
+        let mut db = TopologyDatabase::new();
+        let box_k = create_primitive_box(&mut db, 10.0, 10.0, 10.0);
+        assert!(db.solids.get(box_k).is_some());
+
+        let cyl_k = create_primitive_cylinder(&mut db, 5.0, 20.0, 16);
+        assert!(db.solids.get(cyl_k).is_some());
+
+        let pyr_k = create_primitive_pyramid(&mut db, 6.0, 15.0);
+        assert!(db.solids.get(pyr_k).is_some());
+
+        let solid = db.solids.get(box_k).unwrap();
+        let shell = db.shells.get(solid.outer_shell).unwrap();
+        let face_key = shell.faces[0];
+
+        let offset_res = direct_offset_face(&mut db, face_key, 2.5);
+        assert!(offset_res);
     }
 }
