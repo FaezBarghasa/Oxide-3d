@@ -1,5 +1,11 @@
 //! Oxide-3D Automation, Macro Recorder, and Command Logging.
 
+pub mod mcp_server;
+pub use mcp_server::{
+    McpError, McpRequest, McpResponse, McpServer, McpServerCapabilities, McpSessionState,
+    McpToolDefinition, MCP_PROTOCOL_VERSION,
+};
+
 use oxide_core::command::OxideCommand;
 use serde::{Deserialize, Serialize};
 
