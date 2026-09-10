@@ -9,11 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned / In Progress
-- Concrete native driver dynamic linking bridges for `cudarc` (CUDA), `ash` (Vulkan), and `metal-rs` (Metal).
-- Native STEP AP242 ISO 10303 reader/writer integration in [`oxide-geo-io`](file:///home/jrad/RustroverProjects/Oxide-3d/crates/oxide-geo-io).
-- Direct interactive viewport canvas bridge between [`oxide-ui-widgets`](file:///home/jrad/RustroverProjects/Oxide-3d/crates/oxide-ui-widgets) and [`oxide-render`](file:///home/jrad/RustroverProjects/Oxide-3d/crates/oxide-render) in Iced MVU.
-- Advanced sparse Cholesky / Conjugate Gradient linear equation solvers in [`oxide-sim-fea`](file:///home/jrad/RustroverProjects/Oxide-3d/crates/oxide-sim-fea) via `faer`.
+### Added
+- **Production Web Application & Server (`apps/oxide-server`)**:
+  - Embedded responsive single-page web app implementing the unified **3ds Max & OpenCADStudio** GUI/UX.
+  - 13-Menu DCC top bar (File, Edit, Tools, Group, Views, Create, Modifiers, Animation, Graph Editors, Rendering, Customize, MaxScript, Help).
+  - 4-Viewport Quad layout (Top Ortho, Front Ortho, Left Ortho, Perspective 3D) with interactive coordinate axes, grid, and toggleable maximization.
+  - Right 6-tab 3ds Max Command Panel (Create, Modify, Hierarchy, Motion, Display, Utilities) with collapsible parameter rollouts.
+  - Bottom animation timeline scrubber with transport controls (play, pause, step, keyframe).
+  - OpenCADStudio command prompt with command history, drafting aliases (`LINE`/`L`, `CIRCLE`/`C`, `BOX`, `CYLINDER`, `PYRAMID`, `EXTRUDE`/`EXT`, `FILLET`, `BOM`, `GCODE`), live cursor coordinates, and drafting status tags (`SNAP`, `GRID`, `ORTHO`, `POLAR`, `OSNAP`, `MODEL`).
+  - REST API endpoints for system health, exact B-Rep primitive generation (`/api/geometry/primitive`), CNC G-code postprocessing (`/api/cam/toolpath`), and multi-level BOM costing (`/api/plm/sample-bom`).
+  - Automated visual verification and UI inspection using `playwright-cli`.
+- **Bivariate Tensor-Product de Boor Algorithm (`crates/oxide-geo`)**:
+  - Implemented exact bivariate tensor-product de Boor evaluation in homogeneous coordinates (`[wx, wy, wz, w]`) in [`surface.rs`](file:///home/jrad/RustroverProjects/Oxide-3d/crates/oxide-geo/src/surface.rs), guaranteeing $C^\infty$ continuous analytical NURBS surface sampling.
+- **Manifold Half-Edge Mesh Kernel (`crates/oxide-geo`)**:
+  - Created [`half_edge.rs`](file:///home/jrad/RustroverProjects/Oxide-3d/crates/oxide-geo/src/half_edge.rs) with typed `SlotMap` keys (`HeVertexKey`, `HalfEdgeKey`, `HeFaceKey`), topological triangle creation, and 1-ring neighbor traversal for Laplacian mesh smoothing.
+- **Native `.oxd` Persistence Engine (`crates/oxide-persist`)**:
+  - High-ratio Zstandard stream compression and MessagePack serialization for structured `OxdDocument<T>` and `OxdManifest` containers.
+- **Settings & User Preferences (`crates/oxide-settings`)**:
+  - Structured TOML configuration handling units, standards, grid spacing, snap precision, and dark mode under platform standard directories.
+- **CAM Toolpaths & CNC Postprocessing (`crates/oxide-cam`)**:
+  - 2.5D pocketing toolpath generation with axial stepdown and zigzag rasterization.
+  - Multi-dialect postprocessors emitting ISO Fanuc, Haas, GRBL, and Siemens Sinumerik G-code programs.
+- **Hierarchical PLM & Multi-Level BOM Costing (`crates/oxide-plm`)**:
+  - Directed acyclic graph BOM tree computing aggregated quantities and extended cost rollups for complex assemblies.
 
 ---
 

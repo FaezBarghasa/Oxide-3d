@@ -70,3 +70,24 @@ Every design action is captured as an `OperationRecord` with millisecond UUIDv7 
 ### 2.5 Native Model Context Protocol (MCP) Automation (`oxide-automation`)
 - Embedded JSON-RPC 2.0 MCP server over stdio for external AI agents.
 - Tools for automated geometric creation, drawing queries, layer setup, and format exports.
+
+### 2.6 Persistence & Binary Container Format (`oxide-persist`)
+- Native `.oxd` file container utilizing MessagePack binary serialization (`rmp-serde`) and high-ratio Zstandard compression (`zstd`).
+- Structured `OxdDocument<T>` carrying schema-versioned `OxdManifest` metadata, scene graph state, and B-Rep topological definitions.
+
+### 2.7 Automated CNC Toolpath & G-Code Generation (`oxide-cam`)
+- 2.5D pocketing toolpath generation with axial stepdown passes and bidirectional zigzag rasterization.
+- Multi-dialect postprocessors emitting standard ISO G-code programs for Fanuc, Haas, GRBL, and Siemens Sinumerik controllers.
+
+### 2.8 Product Lifecycle Management & Multi-Level BOM Costing (`oxide-plm`)
+- Directed acyclic graph BOM tree tracking multi-level assembly hierarchies.
+- Automated recursive accumulation algorithm calculating total part quantities and extended cost rollups across complex engineering assemblies.
+
+### 2.9 Unified 3ds Max & OpenCADStudio GUI/UX (`apps/oxide-server` & `apps/oxide-desktop`)
+- Single unified interface offering:
+  - 13-Menu DCC top bar (File, Edit, Tools, Group, Views, Create, Modifiers, Animation, Graph Editors, Rendering, Customize, MaxScript, Help).
+  - 4-Viewport Quad layout (Top Ortho, Front Ortho, Left Ortho, Perspective 3D) with interactive coordinate axes, grid, and maximization toggle.
+  - 6-Tab 3ds Max Command Panel with collapsible parameter rollouts.
+  - Timeline animation scrubber and keyframe controllers.
+  - OpenCADStudio command prompt with command history, drafting aliases (`LINE`/`L`, `CIRCLE`/`C`, `BOX`, `CYLINDER`, `PYRAMID`, `EXTRUDE`/`EXT`, `FILLET`, `BOM`, `GCODE`), live cursor coordinates, and drafting status tags.
+  - Full automated visual verification via `playwright-cli`.
