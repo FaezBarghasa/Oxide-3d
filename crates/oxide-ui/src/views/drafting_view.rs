@@ -19,8 +19,10 @@ pub fn render_drafting_workspace(app: &OxideApp) -> Element<'_, OxideUiMessage> 
                 button(text("Arc (A)").size(10)).padding([2, 5]),
                 button(text("Rect (REC)").size(10)).padding([2, 5]),
                 button(text("Hatch (H)").size(10)).padding([2, 5]),
-            ].spacing(3),
-        ].spacing(2),
+            ]
+            .spacing(3),
+        ]
+        .spacing(2),
         text("│").size(12),
         column![
             text("Modify").size(11),
@@ -32,16 +34,20 @@ pub fn render_drafting_workspace(app: &OxideApp) -> Element<'_, OxideUiMessage> 
                 button(text("Extend (EX)").size(10)).padding([2, 5]),
                 button(text("Fillet (F)").size(10)).padding([2, 5]),
                 button(text("Offset (O)").size(10)).padding([2, 5]),
-            ].spacing(3),
-        ].spacing(2),
+            ]
+            .spacing(3),
+        ]
+        .spacing(2),
         text("│").size(12),
         column![
             text("Layers").size(11),
             row![
                 text("Layer: 0 [White]").size(10),
                 button(text("Layer Properties (LA)").size(10)).padding([2, 5]),
-            ].spacing(4),
-        ].spacing(2),
+            ]
+            .spacing(4),
+        ]
+        .spacing(2),
         text("│").size(12),
         column![
             text("Annotation").size(11),
@@ -49,8 +55,10 @@ pub fn render_drafting_workspace(app: &OxideApp) -> Element<'_, OxideUiMessage> 
                 button(text("Dimension (DIM)").size(10)).padding([2, 5]),
                 button(text("MText (T)").size(10)).padding([2, 5]),
                 button(text("Leader").size(10)).padding([2, 5]),
-            ].spacing(3),
-        ].spacing(2),
+            ]
+            .spacing(3),
+        ]
+        .spacing(2),
     ]
     .spacing(8)
     .align_y(Alignment::Center);

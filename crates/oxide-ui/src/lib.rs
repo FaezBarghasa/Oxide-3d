@@ -404,28 +404,27 @@ impl OxideApp {
             }
             OxideUiMessage::ToggleMaximizeViewport => {
                 self.dcc_viewport.toggle_maximize();
-                self.status_text = format!("Viewport Maximized: {}", self.dcc_viewport.is_maximized);
+                self.status_text =
+                    format!("Viewport Maximized: {}", self.dcc_viewport.is_maximized);
             }
             OxideUiMessage::CommandPromptInput(val) => {
                 self.command_prompt.set_input(&val);
             }
-            OxideUiMessage::CommandPromptSubmit => {
-                match self.command_prompt.submit() {
-                    CommandPromptResult::Executed { command, primary } => {
-                        self.status_text = format!("Executed: {} (alias: {})", primary, command);
-                        if primary == "LINE" || primary == "PLINE" || primary == "CIRCLE" {
-                            self.active_tool_name = format!("Drafting: {}", primary);
-                        }
+            OxideUiMessage::CommandPromptSubmit => match self.command_prompt.submit() {
+                CommandPromptResult::Executed { command, primary } => {
+                    self.status_text = format!("Executed: {} (alias: {})", primary, command);
+                    if primary == "LINE" || primary == "PLINE" || primary == "CIRCLE" {
+                        self.active_tool_name = format!("Drafting: {}", primary);
                     }
-                    CommandPromptResult::Prompting(prompt) => {
-                        self.status_text = format!("Prompt: {}", prompt);
-                    }
-                    CommandPromptResult::Unknown(cmd) => {
-                        self.status_text = format!("Unknown command: {}", cmd);
-                    }
-                    CommandPromptResult::Empty => {}
                 }
-            }
+                CommandPromptResult::Prompting(prompt) => {
+                    self.status_text = format!("Prompt: {}", prompt);
+                }
+                CommandPromptResult::Unknown(cmd) => {
+                    self.status_text = format!("Unknown command: {}", cmd);
+                }
+                CommandPromptResult::Empty => {}
+            },
         }
         Task::none()
     }
@@ -487,9 +486,11 @@ impl OxideApp {
 
         // Render dedicated workspace views based on active mode
         match self.mode {
-            WorkspaceMode::Drafting => {
-                column![header, views::drafting_view::render_drafting_workspace(self)].into()
-            }
+            WorkspaceMode::Drafting => column![
+                header,
+                views::drafting_view::render_drafting_workspace(self)
+            ]
+            .into(),
             WorkspaceMode::Dcc => {
                 column![header, views::dcc_view::render_dcc_workspace(self)].into()
             }
@@ -715,8 +716,14 @@ mod tests {
         let _ = app.update(OxideUiMessage::CommandPromptSubmit);
         assert_eq!(app.status_text, "Executed: EXTRUDE (alias: EXT)");
 
-        // Verify Drafting database initializes with default layer "0"
-        assert_eq!(app.drafting_db.layers.len(), 1);
+        // Verify Drafting database initializes with default standard layers
+        assert_eq!(app.drafting_db.layers.len(), 4);
         assert!(app.drafting_db.layers.iter().any(|l| l.name == "0"));
+        assert!(
+            app.drafting_db
+                .layers
+                .iter()
+                .any(|l| l.name == "Dimensions")
+        );
     }
 }

@@ -198,7 +198,9 @@ impl DraftingDatabase2D {
                 DraftingEntity2D::Line { start, end } => {
                     if self.active_osnaps.contains(&OsnapMode::Endpoint) {
                         let d_start = cursor.distance_to(start);
-                        if d_start <= tolerance && best.as_ref().is_none_or(|b| d_start < b.distance_to_cursor) {
+                        if d_start <= tolerance
+                            && best.as_ref().is_none_or(|b| d_start < b.distance_to_cursor)
+                        {
                             best = Some(OsnapCandidate {
                                 point: *start,
                                 mode: OsnapMode::Endpoint,
@@ -206,7 +208,9 @@ impl DraftingDatabase2D {
                             });
                         }
                         let d_end = cursor.distance_to(end);
-                        if d_end <= tolerance && best.as_ref().is_none_or(|b| d_end < b.distance_to_cursor) {
+                        if d_end <= tolerance
+                            && best.as_ref().is_none_or(|b| d_end < b.distance_to_cursor)
+                        {
                             best = Some(OsnapCandidate {
                                 point: *end,
                                 mode: OsnapMode::Endpoint,
@@ -217,7 +221,9 @@ impl DraftingDatabase2D {
                     if self.active_osnaps.contains(&OsnapMode::Midpoint) {
                         let mid = Point2D::new((start.x + end.x) * 0.5, (start.y + end.y) * 0.5);
                         let d_mid = cursor.distance_to(&mid);
-                        if d_mid <= tolerance && best.as_ref().is_none_or(|b| d_mid < b.distance_to_cursor) {
+                        if d_mid <= tolerance
+                            && best.as_ref().is_none_or(|b| d_mid < b.distance_to_cursor)
+                        {
                             best = Some(OsnapCandidate {
                                 point: mid,
                                 mode: OsnapMode::Midpoint,
@@ -229,7 +235,11 @@ impl DraftingDatabase2D {
                 DraftingEntity2D::Circle { center, radius } => {
                     if self.active_osnaps.contains(&OsnapMode::Center) {
                         let d_center = cursor.distance_to(center);
-                        if d_center <= tolerance && best.as_ref().is_none_or(|b| d_center < b.distance_to_cursor) {
+                        if d_center <= tolerance
+                            && best
+                                .as_ref()
+                                .is_none_or(|b| d_center < b.distance_to_cursor)
+                        {
                             best = Some(OsnapCandidate {
                                 point: *center,
                                 mode: OsnapMode::Center,
@@ -246,7 +256,9 @@ impl DraftingDatabase2D {
                         ];
                         for q in quads {
                             let d = cursor.distance_to(&q);
-                            if d <= tolerance && best.as_ref().is_none_or(|b| d < b.distance_to_cursor) {
+                            if d <= tolerance
+                                && best.as_ref().is_none_or(|b| d < b.distance_to_cursor)
+                            {
                                 best = Some(OsnapCandidate {
                                     point: q,
                                     mode: OsnapMode::Quadrant,
