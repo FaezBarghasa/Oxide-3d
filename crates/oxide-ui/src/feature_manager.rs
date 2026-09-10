@@ -101,10 +101,22 @@ impl FeatureManagerTree {
             ("Sensors", TreeItemKind::Sensors),
             ("Equations", TreeItemKind::Equations),
             ("Annotations", TreeItemKind::Annotations),
-            ("Material <6061-T6 Aluminum>", TreeItemKind::Material("6061-T6 Aluminum".into())),
-            ("Front Plane", TreeItemKind::ReferencePlane("Front Plane".into())),
-            ("Top Plane", TreeItemKind::ReferencePlane("Top Plane".into())),
-            ("Right Plane", TreeItemKind::ReferencePlane("Right Plane".into())),
+            (
+                "Material <6061-T6 Aluminum>",
+                TreeItemKind::Material("6061-T6 Aluminum".into()),
+            ),
+            (
+                "Front Plane",
+                TreeItemKind::ReferencePlane("Front Plane".into()),
+            ),
+            (
+                "Top Plane",
+                TreeItemKind::ReferencePlane("Top Plane".into()),
+            ),
+            (
+                "Right Plane",
+                TreeItemKind::ReferencePlane("Right Plane".into()),
+            ),
             ("Origin", TreeItemKind::Origin),
             (
                 "Sketch1",
@@ -206,7 +218,8 @@ impl Default for PropertyManagerModel {
     fn default() -> Self {
         Self {
             title: "Extrude Boss/Base".to_string(),
-            message: "Select a sketch or planar face to extrude, or specify parameters below.".to_string(),
+            message: "Select a sketch or planar face to extrude, or specify parameters below."
+                .to_string(),
             is_active: false,
             groups: vec![
                 (

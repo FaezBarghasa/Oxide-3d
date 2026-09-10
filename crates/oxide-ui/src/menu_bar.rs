@@ -119,7 +119,11 @@ impl MenuBarModel {
                 MenuItemDef::new("Isometric View", "view.isometric", Some("Ctrl+7")),
                 MenuItemDef::new("Normal To", "view.normal_to", Some("Ctrl+8")),
                 MenuItemDef::new("Section View", "view.section", None),
-                MenuItemDef::new("Display Style: Shaded with Edges", "view.display_shaded_edges", None),
+                MenuItemDef::new(
+                    "Display Style: Shaded with Edges",
+                    "view.display_shaded_edges",
+                    None,
+                ),
                 MenuItemDef::new("Display Style: Wireframe", "view.display_wireframe", None),
                 MenuItemDef::new("Hide/Show Items: Planes", "view.toggle_planes", None),
                 MenuItemDef::new("Hide/Show Items: Axes", "view.toggle_axes", None),
@@ -151,7 +155,11 @@ impl MenuBarModel {
                 MenuItemDef::new("Circular Pattern...", "insert.circular_pattern", None),
                 MenuItemDef::new("Reference Geometry: Plane", "insert.ref_plane", None),
                 MenuItemDef::new("Reference Geometry: Axis", "insert.ref_axis", None),
-                MenuItemDef::new("Reference Geometry: Coordinate System", "insert.ref_csys", None),
+                MenuItemDef::new(
+                    "Reference Geometry: Coordinate System",
+                    "insert.ref_csys",
+                    None,
+                ),
             ],
             MenuCategory::Tools => vec![
                 MenuItemDef::new("Measure", "tools.measure", None),

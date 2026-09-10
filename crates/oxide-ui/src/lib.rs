@@ -1,4 +1,12 @@
-//! Oxide-3D Iced Application Shell, Workspace Layouts, and Command Palette.
+pub mod command_manager;
+pub mod feature_manager;
+pub mod heads_up;
+pub mod menu_bar;
+
+use command_manager::{CommandManagerModel, CommandTab, DocumentContext};
+use feature_manager::{FeatureManagerTree, PropertyManagerModel};
+use heads_up::{HeadsUpToolbarModel, ShortcutBarModel, TaskPaneModel};
+use menu_bar::{MenuBarModel, MenuCategory};
 
 use iced::widget::{button, column, container, row, text};
 use iced::{Alignment, Element, Length, Task};
@@ -87,6 +95,20 @@ pub struct OxideApp {
     pub recorder: MacroRecorder,
     /// Active tool name for PropertyManager.
     pub active_tool_name: String,
+    /// SolidWorks-style Menu Bar model.
+    pub menu_bar: MenuBarModel,
+    /// SolidWorks-style CommandManager context model.
+    pub command_manager: CommandManagerModel,
+    /// FeatureManager Design Tree.
+    pub feature_tree: FeatureManagerTree,
+    /// PropertyManager Panel.
+    pub property_manager: PropertyManagerModel,
+    /// Heads-Up View Toolbar.
+    pub heads_up: HeadsUpToolbarModel,
+    /// Task Pane Model.
+    pub task_pane: TaskPaneModel,
+    /// Quick "S" Shortcut Bar.
+    pub shortcut_bar: ShortcutBarModel,
 }
 
 impl Default for OxideApp {
@@ -101,6 +123,13 @@ impl Default for OxideApp {
             active_mesh: TriMesh::cube(2.0, [0.2, 0.6, 0.95, 0.85]),
             recorder,
             active_tool_name: "Select".to_string(),
+            menu_bar: MenuBarModel::new(),
+            command_manager: CommandManagerModel::new(),
+            feature_tree: FeatureManagerTree::default_part_tree(),
+            property_manager: PropertyManagerModel::default(),
+            heads_up: HeadsUpToolbarModel::default(),
+            task_pane: TaskPaneModel::default(),
+            shortcut_bar: ShortcutBarModel::default(),
         }
     }
 }
@@ -431,5 +460,48 @@ mod tests {
         let py = app.recorder.export_python_script();
         assert!(py.contains("doc.create_extrude"));
         assert!(py.contains("doc.create_fillet"));
+
+        // Verify SolidWorks-style MenuBar catalog
+        let file_items = app.menu_bar.get_items(MenuCategory::File);
+        assert!(!file_items.is_empty());
+        assert!(file_items.iter().any(|item| item.action_id == "file.save"));
+
+        let insert_items = app.menu_bar.get_items(MenuCategory::Insert);
+        assert!(
+            insert_items
+                .iter()
+                .any(|item| item.action_id == "insert.extrude")
+        );
+
+        // Verify CommandManager tool catalog across Part context
+        let available_tabs = app.command_manager.get_available_tabs();
+        assert!(available_tabs.contains(&CommandTab::Features));
+        assert!(available_tabs.contains(&CommandTab::Sketch));
+        assert!(available_tabs.contains(&CommandTab::SheetMetal));
+        assert!(available_tabs.contains(&CommandTab::Weldments));
+        assert!(available_tabs.contains(&CommandTab::MoldTools));
+
+        let feature_tools = app.command_manager.get_tools(CommandTab::Features);
+        assert!(feature_tools.iter().any(|t| t.action_id == "cmd.extrude"));
+        assert!(feature_tools.iter().any(|t| t.action_id == "cmd.revolve"));
+        assert!(feature_tools.iter().any(|t| t.action_id == "cmd.fillet"));
+
+        // Verify FeatureManager default part tree
+        assert!(!app.feature_tree.nodes.is_empty());
+        assert!(
+            app.feature_tree
+                .nodes
+                .iter()
+                .any(|n| n.label == "Front Plane")
+        );
+
+        // Verify PropertyManager model
+        assert!(!app.property_manager.groups.is_empty());
+
+        // Verify Heads-up View Toolbar default
+        assert_eq!(
+            app.heads_up.display_style,
+            heads_up::DisplayStyle::ShadedWithEdges
+        );
     }
 }
