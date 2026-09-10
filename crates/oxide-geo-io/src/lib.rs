@@ -1,4 +1,7 @@
-//! Oxide-3D Geometry Importers & Exporters (STEP, STL, OBJ, 3MF, glTF).
+//! Oxide-3D Geometry Importers & Exporters (STEP, STL, OBJ, 3MF, glTF, DXF, DWG).
+
+pub mod cad_dxf_dwg;
+pub use cad_dxf_dwg::{CadRecoveryManager, DwgSniffer, DwgVersion, DxfCodec, DxfPair};
 
 use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
