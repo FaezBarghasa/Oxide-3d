@@ -218,4 +218,115 @@ impl TopologyDatabase {
         );
         self.add_solid(shell)
     }
+
+    /// Create a polygonal B-Rep cylinder with radius, height, and segment count.
+    pub fn make_cylinder(&mut self, radius: f64, height: f64, segments: usize) -> SolidKey {
+        let segs = segments.max(3);
+        let hz = height * 0.5;
+        let mut bottom_verts = Vec::with_capacity(segs);
+        let mut top_verts = Vec::with_capacity(segs);
+
+        for i in 0..segs {
+            let angle = (i as f64) * std::f64::consts::TAU / (segs as f64);
+            let x = radius * angle.cos();
+            let y = radius * angle.sin();
+            bottom_verts.push(self.add_vertex([x, y, -hz]));
+            top_verts.push(self.add_vertex([x, y, hz]));
+        }
+
+        let mut bottom_edges = Vec::with_capacity(segs);
+        let mut top_edges = Vec::with_capacity(segs);
+        let mut lateral_faces = Vec::with_capacity(segs);
+
+        for i in 0..segs {
+            let next_i = (i + 1) % segs;
+            bottom_edges.push(self.add_edge(bottom_verts[i], bottom_verts[next_i], None));
+            top_edges.push(self.add_edge(top_verts[next_i], top_verts[i], None));
+
+            let e_b = self.add_edge(bottom_verts[i], bottom_verts[next_i], None);
+            let e_r = self.add_edge(bottom_verts[next_i], top_verts[next_i], None);
+            let e_t = self.add_edge(top_verts[next_i], top_verts[i], None);
+            let e_l = self.add_edge(top_verts[i], bottom_verts[i], None);
+
+            let quad_wire = self.add_wire([e_b, e_r, e_t, e_l]);
+            let lat_face = self.add_face(
+                quad_wire,
+                Surface3d::Cylinder {
+                    origin: [0.0, 0.0, -hz],
+                    axis: [0.0, 0.0, 1.0],
+                    radius,
+                },
+            );
+            lateral_faces.push(lat_face);
+        }
+
+        let bottom_wire = self.add_wire(bottom_edges);
+        let top_wire = self.add_wire(top_edges);
+
+        let bottom_face = self.add_face(
+            bottom_wire,
+            Surface3d::Plane {
+                origin: [0.0, 0.0, -hz],
+                normal: [0.0, 0.0, -1.0],
+            },
+        );
+        let top_face = self.add_face(
+            top_wire,
+            Surface3d::Plane {
+                origin: [0.0, 0.0, hz],
+                normal: [0.0, 0.0, 1.0],
+            },
+        );
+
+        let mut all_faces = vec![bottom_face, top_face];
+        all_faces.extend(lateral_faces);
+
+        let shell = self.add_shell(all_faces, true);
+        self.add_solid(shell)
+    }
+
+    /// Create an exact B-Rep 4-sided pyramid with base size and height.
+    pub fn make_pyramid(&mut self, base_size: f64, height: f64) -> SolidKey {
+        let hs = base_size * 0.5;
+        let v0 = self.add_vertex([-hs, -hs, 0.0]);
+        let v1 = self.add_vertex([hs, -hs, 0.0]);
+        let v2 = self.add_vertex([hs, hs, 0.0]);
+        let v3 = self.add_vertex([-hs, hs, 0.0]);
+        let apex = self.add_vertex([0.0, 0.0, height]);
+
+        let e0 = self.add_edge(v0, v1, None);
+        let e1 = self.add_edge(v1, v2, None);
+        let e2 = self.add_edge(v2, v3, None);
+        let e3 = self.add_edge(v3, v0, None);
+        let base_wire = self.add_wire([e0, e1, e2, e3]);
+        let base_face = self.add_face(
+            base_wire,
+            Surface3d::Plane {
+                origin: [0.0, 0.0, 0.0],
+                normal: [0.0, 0.0, -1.0],
+            },
+        );
+
+        let mut make_tri = |p0: VertexKey, p1: VertexKey| -> FaceKey {
+            let e_b = self.add_edge(p0, p1, None);
+            let e_r = self.add_edge(p1, apex, None);
+            let e_l = self.add_edge(apex, p0, None);
+            let wire = self.add_wire([e_b, e_r, e_l]);
+            self.add_face(
+                wire,
+                Surface3d::Plane {
+                    origin: [0.0, 0.0, 0.0],
+                    normal: [0.0, 1.0, 0.0],
+                },
+            )
+        };
+
+        let f0 = make_tri(v0, v1);
+        let f1 = make_tri(v1, v2);
+        let f2 = make_tri(v2, v3);
+        let f3 = make_tri(v3, v0);
+
+        let shell = self.add_shell(vec![base_face, f0, f1, f2, f3], true);
+        self.add_solid(shell)
+    }
 }
