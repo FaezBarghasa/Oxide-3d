@@ -13,11 +13,21 @@ path = "src/main.rs"
 
 [dependencies]
 oxide-core.workspace = true
+oxide-geo.workspace = true
+oxide-geo-ops.workspace = true
+oxide-scene.workspace = true
+oxide-plm.workspace = true
+oxide-cam.workspace = true
+oxide-persist.workspace = true
+oxide-settings.workspace = true
 oxide-collab.workspace = true
 oxide-telemetry.workspace = true
 axum.workspace = true
 tokio.workspace = true
 tracing.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tower-http.workspace = true
 
 [lints]
 workspace = true
