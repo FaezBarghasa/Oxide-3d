@@ -28,6 +28,14 @@ pub trait GeometryKernel: Send + Sync {
 }
 ```
 
+### 1.4 Bivariate Tensor-Product de Boor & Half-Edge Mesh Kernel
+- **NURBS Surface Tensor Product**:
+  - Exact triangular recurrence evaluating rational B-spline curves along the $v$-direction rows in homogeneous coordinates $[w x, w y, w z, w]$, followed by $u$-direction de Boor reduction on intermediate points.
+  - Guarantees $C^\infty$ continuous analytical surface sampling and outward normal vectors across trimmed/untrimmed NURBS patches.
+- **Manifold Half-Edge Mesh Kernel (`HalfEdgeMesh`)**:
+  - Typed `SlotMap` keys (`HeVertexKey`, `HalfEdgeKey`, `HeFaceKey`).
+  - Topological connectivity supporting 1-ring neighbor traversals, edge splits/collapses, and in-place Laplacian mesh smoothing for sculpt and subdivision workflows.
+
 ---
 
 ## 2. Event-Sourced Document Model (`oxide-core::event_log`)
@@ -69,9 +77,31 @@ pub trait GeometryKernel: Send + Sync {
 ### 5.1 PLM Data Models
 - **`Item`**: Item ID, Part Number, Revision, Lifecycle State (`InWork`, `InReview`, `Released`, `Obsolete`).
 - **`BomEntry`**: Hierarchical tree links with quantities and drawing find numbers.
-- **Database Engine**: Embedded zero-overhead transactional `redb`.
+- **Multi-Level Rollup**: Recursive graph traversal calculating aggregated quantities and extended costs.
 
 ### 5.2 Native `.oxd` Container Format
 - **Manifest**: JSON format specification and metadata.
-- **Operation Log**: Append-only log of `OxideCommand` / `OperationRecord` actions.
-- **Chunked Blobs**: Zstd-compressed binary geometry and simulation fields with `memmap2` streaming.
+- **Payload**: MessagePack binary serialization (`rmp-serde`) with Zstandard stream compression (`zstd`).
+
+---
+
+## 6. Computer-Aided Manufacturing (CAM) & Toolpath Generation (`oxide-cam`)
+
+- **2.5D Pocketing Operations**: Multi-pass axial depth stepdowns with bidirectional zigzag rasterization.
+- **Postprocessors**: Formatting toolpath points into standardized CNC programs across Fanuc, Haas, GRBL, and Siemens Sinumerik ISO dialects.
+
+---
+
+## 7. Unified 3ds Max & OpenCADStudio Desktop & Web Platform (`apps/oxide-server`, `crates/oxide-ui`)
+
+- **13-Menu DCC Top Bar**: Standardized menu hierarchy (File, Edit, Tools, Group, Views, Create, Modifiers, Animation, Graph Editors, Rendering, Customize, MaxScript, Help).
+- **4-Viewport Quad Layout**: Top, Front, Left, and Perspective views with independent coordinate axes, grid, and toggleable maximization.
+- **6-Tab Command Panel**: Create (primitives), Modify (modifier stack), Hierarchy, Motion, Display, and Utilities rollouts.
+- **OpenCADStudio Command Line**: Multi-line command history, drafting aliases (`LINE`, `CIRCLE`, `BOX`, `CYLINDER`, `PYRAMID`, `EXTRUDE`, `FILLET`, `BOM`, `GCODE`), live cursor coordinates, and drafting status tags.
+
+---
+
+## 8. Visual Examination & Quality Assurance (`playwright-cli`)
+
+- Automated headless and headed browser verification validating UI rendering, responsive layouts, button interactions, command line inputs, and 3D viewport canvas rendering.
+- Continuous visual snapshot capture verifying pixel accuracy across drafting and modeling workflows.
