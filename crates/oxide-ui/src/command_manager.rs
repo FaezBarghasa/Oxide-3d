@@ -45,6 +45,28 @@ pub enum CommandTab {
     OfficeProducts,
 }
 
+impl CommandTab {
+    /// Return human-readable label for the tab.
+    #[must_use]
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::Features => "Features",
+            Self::Sketch => "Sketch",
+            Self::Evaluate => "Evaluate",
+            Self::DimXpert => "DimXpert",
+            Self::SheetMetal => "Sheet Metal",
+            Self::Weldments => "Weldments",
+            Self::MoldTools => "Mold Tools",
+            Self::Surfaces => "Surfaces",
+            Self::Assembly => "Assembly",
+            Self::Layout => "Layout",
+            Self::ViewLayout => "View Layout",
+            Self::Annotation => "Annotation",
+            Self::OfficeProducts => "Office Products",
+        }
+    }
+}
+
 /// Individual tool item inside a CommandManager Tab.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CommandToolDef {

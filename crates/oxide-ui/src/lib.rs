@@ -3,6 +3,7 @@
 pub mod animation_system;
 pub mod command_manager;
 pub mod command_panel;
+pub mod command_prompt;
 pub mod dcc_menu;
 pub mod dcc_toolbar;
 pub mod dcc_viewport;
@@ -14,12 +15,14 @@ pub mod menu_bar;
 pub mod particles_physics;
 pub mod preferences_shortcuts;
 pub mod rendering_system;
+pub mod views;
 
 pub use animation_system::{AnimationSystemModel, ControllerKind, KeyframeMode, TrackViewMode};
 pub use command_manager::{CommandManagerModel, CommandTab, CommandToolDef, DocumentContext};
 pub use command_panel::{
     CommandPanelModel, CommandPanelTab, CreateCategory, GeometrySubcategory, ModifyPanelModel,
 };
+pub use command_prompt::{CommandPromptModel, CommandPromptResult};
 pub use dcc_menu::{DccMenuBarModel, DccMenuCategory, DccMenuItemDef};
 pub use dcc_toolbar::{
     CoordSystem, DccMainToolbarModel, SelectionFilter, SelectionRegionMode, TransformCenterMode,
@@ -60,6 +63,7 @@ use iced::{Alignment, Element, Length, Task};
 use oxide_automation::MacroRecorder;
 use oxide_core::command::OxideCommand;
 use oxide_core::id::EntityKey;
+use oxide_geo::DraftingDatabase2D;
 use oxide_render::{Camera, TriMesh};
 use oxide_settings::OxideSettings;
 use oxide_ui_widgets::{ViewportMessage, viewport_canvas};
@@ -70,6 +74,8 @@ pub enum WorkspaceMode {
     /// 3D Part & Surface Modeling (CAD).
     #[default]
     Model,
+    /// 2D Precision Drafting & Annotation (AutoCAD / OpenCADStudio).
+    Drafting,
     /// Organic Sculpting & Dyntopo.
     Sculpt,
     /// Multi-Component Assemblies.
@@ -131,6 +137,16 @@ pub enum OxideUiMessage {
     SelectCommandPanelTab(CommandPanelTab),
     /// Select DCC Ribbon Tab.
     SelectRibbonTab(RibbonTab),
+    /// Create DCC standard/extended primitive.
+    CreateDccPrimitive(String),
+    /// Toggle animation playback.
+    TimelinePlayToggle,
+    /// Toggle maximize viewport (Alt+W).
+    ToggleMaximizeViewport,
+    /// Update command prompt text.
+    CommandPromptInput(String),
+    /// Execute command prompt string.
+    CommandPromptSubmit,
 }
 
 /// Main Oxide-3D Iced Application State.
@@ -184,6 +200,10 @@ pub struct OxideApp {
     pub particles_physics: ParticlesPhysicsModel,
     /// DCC Preferences & Shortcuts.
     pub preferences: PreferencesShortcutsModel,
+    /// AutoCAD / OpenCADStudio Command Prompt model.
+    pub command_prompt: CommandPromptModel,
+    /// 2D Precision Drafting Database.
+    pub drafting_db: DraftingDatabase2D,
 }
 
 impl Default for OxideApp {
@@ -215,6 +235,8 @@ impl Default for OxideApp {
             rendering_system: RenderingSystemModel::new(),
             particles_physics: ParticlesPhysicsModel::new(),
             preferences: PreferencesShortcutsModel::new(),
+            command_prompt: CommandPromptModel::new(),
+            drafting_db: DraftingDatabase2D::new(),
         }
     }
 }
@@ -357,6 +379,53 @@ impl OxideApp {
                 self.graphite_ribbon.active_tab = tab;
                 self.status_text = format!("Graphite Ribbon: {:?}", tab);
             }
+            OxideUiMessage::CreateDccPrimitive(name) => {
+                self.active_tool_name = format!("Create {}", name);
+                match name.as_str() {
+                    "Cylinder" => {
+                        self.active_mesh = TriMesh::cylinder(1.5, 4.0, 32, [0.8, 0.5, 0.2, 0.9]);
+                    }
+                    "Sphere" | "Geosphere" => {
+                        self.active_mesh = TriMesh::sphere(2.0, 24, 48, [0.3, 0.7, 0.9, 0.9]);
+                    }
+                    _ => {
+                        self.active_mesh = TriMesh::cube(2.5, [0.2, 0.6, 0.95, 0.85]);
+                    }
+                }
+                self.status_text = format!("Created DCC primitive: {}", name);
+            }
+            OxideUiMessage::TimelinePlayToggle => {
+                self.animation_system.is_playing = !self.animation_system.is_playing;
+                self.status_text = if self.animation_system.is_playing {
+                    "Animation: Playing".to_string()
+                } else {
+                    "Animation: Paused".to_string()
+                };
+            }
+            OxideUiMessage::ToggleMaximizeViewport => {
+                self.dcc_viewport.toggle_maximize();
+                self.status_text = format!("Viewport Maximized: {}", self.dcc_viewport.is_maximized);
+            }
+            OxideUiMessage::CommandPromptInput(val) => {
+                self.command_prompt.set_input(&val);
+            }
+            OxideUiMessage::CommandPromptSubmit => {
+                match self.command_prompt.submit() {
+                    CommandPromptResult::Executed { command, primary } => {
+                        self.status_text = format!("Executed: {} (alias: {})", primary, command);
+                        if primary == "LINE" || primary == "PLINE" || primary == "CIRCLE" {
+                            self.active_tool_name = format!("Drafting: {}", primary);
+                        }
+                    }
+                    CommandPromptResult::Prompting(prompt) => {
+                        self.status_text = format!("Prompt: {}", prompt);
+                    }
+                    CommandPromptResult::Unknown(cmd) => {
+                        self.status_text = format!("Unknown command: {}", cmd);
+                    }
+                    CommandPromptResult::Empty => {}
+                }
+            }
         }
         Task::none()
     }
@@ -365,6 +434,7 @@ impl OxideApp {
     pub fn view(&self) -> Element<'_, OxideUiMessage> {
         let modes = [
             (WorkspaceMode::Model, "Model (CAD)"),
+            (WorkspaceMode::Drafting, "Drafting (2D)"),
             (WorkspaceMode::Sculpt, "Sculpt"),
             (WorkspaceMode::Assembly, "Assembly"),
             (WorkspaceMode::Nodes, "Nodes"),
@@ -415,139 +485,65 @@ impl OxideApp {
         )
         .padding(6);
 
-        // Sidebar tools contextually styled for CAD vs Sculpt vs DCC
-        let sidebar_content = match self.mode {
-            WorkspaceMode::Sculpt => column![
-                text("Sculpt Brushes").size(14),
-                button(text("Draw (V)").size(12))
+        // Render dedicated workspace views based on active mode
+        match self.mode {
+            WorkspaceMode::Drafting => {
+                column![header, views::drafting_view::render_drafting_workspace(self)].into()
+            }
+            WorkspaceMode::Dcc => {
+                column![header, views::dcc_view::render_dcc_workspace(self)].into()
+            }
+            WorkspaceMode::Sculpt => {
+                let sidebar = container(
+                    column![
+                        text("Sculpt Brushes").size(14),
+                        button(text("Draw (V)").size(12))
+                            .width(Length::Fill)
+                            .on_press(OxideUiMessage::ToolSculptDraw),
+                        button(text("Clay Strips (C)").size(12))
+                            .width(Length::Fill)
+                            .on_press(OxideUiMessage::ToolSculptClay),
+                        button(text("Smooth (S)").size(12))
+                            .width(Length::Fill)
+                            .on_press(OxideUiMessage::ToolSculptSmooth),
+                        button(text("Voxel Remesh").size(12))
+                            .width(Length::Fill)
+                            .on_press(OxideUiMessage::ToolRemesh),
+                    ]
+                    .spacing(8)
+                    .padding(10)
+                    .width(Length::Fixed(160.0)),
+                );
+                let viewport =
+                    viewport_canvas(&self.camera, &self.active_mesh, OxideUiMessage::Viewport);
+                let right_panel = container(
+                    column![
+                        text("Sculpt PropertyManager").size(14),
+                        text(format!("Brush: {}", self.active_tool_name)).size(12),
+                        text("Dyntopo: Active [12.0 px]").size(11),
+                        text("Symmetry: X-Mirror").size(11),
+                    ]
+                    .spacing(6)
+                    .padding(10)
+                    .width(Length::Fixed(200.0)),
+                );
+                let center_area = row![sidebar, viewport, right_panel]
                     .width(Length::Fill)
-                    .on_press(OxideUiMessage::ToolSculptDraw),
-                button(text("Clay Strips (C)").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::ToolSculptClay),
-                button(text("Smooth (S)").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::ToolSculptSmooth),
-                button(text("Voxel Remesh").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::ToolRemesh),
-            ],
-            WorkspaceMode::Dcc => column![
-                text("DCC Command Panel").size(14),
-                button(text("Create").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::SelectCommandPanelTab(
-                        CommandPanelTab::Create
-                    )),
-                button(text("Modify").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::SelectCommandPanelTab(
-                        CommandPanelTab::Modify
-                    )),
-                button(text("Hierarchy").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::SelectCommandPanelTab(
-                        CommandPanelTab::Hierarchy
-                    )),
-                button(text("Motion").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::SelectCommandPanelTab(
-                        CommandPanelTab::Motion
-                    )),
-                button(text("Display").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::SelectCommandPanelTab(
-                        CommandPanelTab::Display
-                    )),
-                button(text("Utilities").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::SelectCommandPanelTab(
-                        CommandPanelTab::Utilities
-                    )),
-            ],
-            _ => column![
-                text("CAD / CAE Tools").size(14),
-                button(text("Select").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::ToolSelect),
-                button(text("Extrude Solid").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::ToolExtrude),
-                button(text("Revolve Solid").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::ToolRevolve),
-                button(text("Fillet Edges").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::ToolFillet),
-                button(text("Boolean CSG").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::ToolBoolean),
-                button(text("Meshing / FEA").size(12))
-                    .width(Length::Fill)
-                    .on_press(OxideUiMessage::ToolFeaMesh),
-            ],
-        };
-
-        let sidebar = container(
-            sidebar_content
-                .spacing(8)
-                .padding(10)
-                .width(Length::Fixed(160.0)),
-        );
-
-        // Interactive 3D Viewport canvas
-        let viewport = viewport_canvas(&self.camera, &self.active_mesh, OxideUiMessage::Viewport);
-
-        // Tree / Properties right panel (FeatureManager & PropertyManager)
-        let right_panel = container(
-            column![
-                text("PropertyManager").size(14),
-                text(format!("Active Tool: {}", self.active_tool_name)).size(12),
-                text("───────────────────").size(10),
-                text("FeatureManager Tree").size(14),
-                text("• Active Solid Body").size(12),
-                text("  ├─ Sketch.1 (Plane.XY)").size(11),
-                text("  ├─ Extrude.1 (30.0mm)").size(11),
-                text("  └─ Fillet.1 (R 2.5mm)").size(11),
-                text("───────────────────").size(10),
-                text(format!(
-                    "• Mesh Triangles: {}",
-                    self.active_mesh.indices.len() / 3
-                ))
-                .size(12),
-                text(format!("• Vertices: {}", self.active_mesh.vertices.len())).size(12),
-                text("Camera XYZ:").size(12),
-                text(format!(
-                    "[{:.1}, {:.1}, {:.1}]",
-                    self.camera.eye.x, self.camera.eye.y, self.camera.eye.z
-                ))
-                .size(11),
-                text("Recorded Macro:").size(12),
-                text(format!(
-                    "{} commands",
-                    self.recorder.recorded_commands.len()
-                ))
-                .size(11),
-            ]
-            .spacing(8)
-            .padding(10)
-            .width(Length::Fixed(220.0)),
-        );
-
-        let center_area = row![sidebar, viewport, right_panel]
-            .width(Length::Fill)
-            .height(Length::Fill);
-
-        let footer = container(
-            row![
-                text(&self.status_text).size(12),
-                text(" | Orbit: Left Click + Drag | Pan: Middle/Right Click | Zoom: Scroll")
-                    .size(12),
-            ]
-            .padding(4),
-        );
-
-        column![header, center_area, footer].into()
+                    .height(Length::Fill);
+                let footer = container(
+                    row![
+                        text(&self.status_text).size(12),
+                        text(" | Sculpt Draw: Left Drag | Rotate View: Alt + Drag").size(12),
+                    ]
+                    .padding(4),
+                );
+                column![header, center_area, footer].into()
+            }
+            _ => {
+                // Default CAD / SolidWorks workspace
+                column![header, views::cad_view::render_cad_workspace(self)].into()
+            }
+        }
     }
 }
 
@@ -682,5 +678,45 @@ mod tests {
         assert!(app.preferences.shortcuts.len() > 30);
         assert!(app.preferences.shortcuts.iter().any(|s| s.key == "Alt+W"));
         assert!(app.preferences.shortcuts.iter().any(|s| s.key == "Ctrl+Z"));
+
+        // Test DCC Primitive Creation
+        let _ = app.update(OxideUiMessage::CreateDccPrimitive("Cylinder".to_string()));
+        assert_eq!(app.active_tool_name, "Create Cylinder");
+        assert!(!app.active_mesh.vertices.is_empty());
+
+        // Test Timeline Toggle
+        assert!(!app.animation_system.is_playing);
+        let _ = app.update(OxideUiMessage::TimelinePlayToggle);
+        assert!(app.animation_system.is_playing);
+    }
+
+    #[test]
+    fn test_drafting_mode_and_command_prompt() {
+        let mut app = OxideApp::new();
+
+        // Switch to Drafting Mode
+        let _ = app.update(OxideUiMessage::SwitchMode(WorkspaceMode::Drafting));
+        assert_eq!(app.mode, WorkspaceMode::Drafting);
+
+        // Command Prompt: test alias "L" -> LINE
+        let _ = app.update(OxideUiMessage::CommandPromptInput("L".to_string()));
+        let _ = app.update(OxideUiMessage::CommandPromptSubmit);
+        assert_eq!(app.status_text, "Executed: LINE (alias: L)");
+        assert_eq!(app.active_tool_name, "Drafting: LINE");
+
+        // Command Prompt: test "C" -> CIRCLE
+        let _ = app.update(OxideUiMessage::CommandPromptInput("C".to_string()));
+        let _ = app.update(OxideUiMessage::CommandPromptSubmit);
+        assert_eq!(app.status_text, "Executed: CIRCLE (alias: C)");
+        assert_eq!(app.active_tool_name, "Drafting: CIRCLE");
+
+        // Command Prompt: test 3D Extrude alias "EXT" -> EXTRUDE
+        let _ = app.update(OxideUiMessage::CommandPromptInput("EXT".to_string()));
+        let _ = app.update(OxideUiMessage::CommandPromptSubmit);
+        assert_eq!(app.status_text, "Executed: EXTRUDE (alias: EXT)");
+
+        // Verify Drafting database initializes with default layer "0"
+        assert_eq!(app.drafting_db.layers.len(), 1);
+        assert!(app.drafting_db.layers.iter().any(|l| l.name == "0"));
     }
 }

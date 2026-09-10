@@ -9,6 +9,7 @@ repository.workspace = true
 
 [dependencies]
 oxide-core.workspace = true
+oxide-geo.workspace = true
 oxide-ui-widgets.workspace = true
 oxide-render.workspace = true
 oxide-automation.workspace = true

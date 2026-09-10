@@ -5,9 +5,10 @@ use serde::{Deserialize, Serialize};
 /// Command Prompt Execution Result.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CommandPromptResult {
-    Success(String),
-    UnknownCommand(String),
-    NeedsPoint(String),
+    Executed { command: String, primary: String },
+    Prompting(String),
+    Unknown(String),
+    Empty,
 }
 
 /// AutoCAD-Style Command Prompt Model.
@@ -82,23 +83,31 @@ impl CommandPromptModel {
         }
     }
 
+    /// Set input text.
+    pub fn set_input(&mut self, text: &str) {
+        self.input_text = text.to_string();
+    }
+
     /// Submit input and execute.
     pub fn submit(&mut self) -> CommandPromptResult {
         let trimmed = self.input_text.trim().to_string();
         self.input_text.clear();
         if trimmed.is_empty() {
-            return CommandPromptResult::Success("Ready".to_string());
+            return CommandPromptResult::Empty;
         }
 
         self.history.push(trimmed.clone());
         let canonical = Self::resolve_alias(&trimmed);
         if canonical == "UNKNOWN" {
             self.prompt_message = format!("Unknown command \"{trimmed}\". Type ? for help.");
-            CommandPromptResult::UnknownCommand(trimmed)
+            CommandPromptResult::Unknown(trimmed)
         } else {
             self.active_command = Some(canonical.to_string());
             self.prompt_message = format!("{canonical}: Specify first point or [Options]:");
-            CommandPromptResult::NeedsPoint(canonical.to_string())
+            CommandPromptResult::Executed {
+                command: trimmed,
+                primary: canonical.to_string(),
+            }
         }
     }
 }

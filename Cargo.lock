@@ -5542,6 +5542,7 @@ dependencies = [
  "nucleo",
  "oxide-automation",
  "oxide-core",
+ "oxide-geo",
  "oxide-render",
  "oxide-settings",
  "oxide-ui-widgets",
