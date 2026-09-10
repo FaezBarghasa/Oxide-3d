@@ -14,6 +14,10 @@ pub enum CoreError {
     #[error("Invalid command execution: {0}")]
     InvalidCommand(String),
 
+    /// Invalid operation in event log or history.
+    #[error("Invalid operation: {0}")]
+    InvalidOperation(String),
+
     /// Unit parsing or conversion mismatch.
     #[error("Unit conversion error: {0}")]
     UnitError(String),

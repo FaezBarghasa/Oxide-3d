@@ -1,12 +1,12 @@
 # Oxide-3D — System Architecture
 
-Comprehensive engineering overview of the **Oxide-3D** industrial CAD/CAE/CAM/PLM monorepo built in modern Rust (2024 edition).
+Comprehensive engineering overview of the **Oxide-3D** industrial CAD/CAE/CAM/DCC monorepo built in modern Rust (2024 edition).
 
 ---
 
 ## 1. High-Level Architectural Model
 
-Oxide-3D adopts an **Event-Sourced Document & Command Bus Model** with strict separation between the asynchronous UI thread, Rayon CPU parallelism, and multi-backend hardware accelerators.
+Oxide-3D adopts an **Event-Sourced Document & Command Bus Model** unifying Parametric CAD (SolidWorks/OpenCADStudio), Procedural DCC (Blender), and Animation/VFX (3ds Max) with strict separation between the asynchronous UI thread, Rayon CPU parallelism, and multi-backend hardware accelerators.
 
 ```text
 +-----------------------------------------------------------------------------------+
@@ -17,17 +17,17 @@ Oxide-3D adopts an **Event-Sourced Document & Command Bus Model** with strict se
                                            v
 +-----------------------------------------------------------------------------------+
 |                                 Domain Command Bus                                |
-|   crates/oxide-core (Commands, Events, IDs, Units) | crates/oxide-automation (Macros)  |
+|   crates/oxide-core (Commands, Events, IDs, Units) | crates/oxide-automation (MCP)     |
 +--------------------+---------------------+---------------------+------------------+
                      |                     |                     |
                      v                     v                     v
 +--------------------------+ +-------------------------+ +--------------------------+
-|      Geometry Core       | |     Assembly Scene      | |     Simulation Core      |
-| oxide-geo (B-Rep DB)     | | oxide-scene (ECS, BVH)  | | oxide-sim-core (Meshes)  |
+|  CAD & Drafting Engine   | |     DCC & Assembly      | |     Simulation Core      |
+| oxide-geo (B-Rep, OSNAP) | | oxide-scene (ECS, BVH)  | | oxide-sim-core (Meshes)  |
 | oxide-geo-ops (Booleans) | | oxide-render (wgpu PBR) | | oxide-sim-fea (faer CG)  |
-| oxide-geo-io (STEP/3MF)  | | oxide-mech (Rapier3d)   | | oxide-sim-cfd (LBM/FVM)  |
-| oxide-nodes (Geometry)   | | oxide-cam (G-code)      | | oxide-sim-topopt (SIMP)  |
-| oxide-feature (DAG tree) | | oxide-metrology (GD&T)  | | oxide-plm (redb Items)   |
+| oxide-geo-io (DWG/DXF)   | | oxide-nodes (GeoNodes)  | | oxide-sim-cfd (LBM/FVM)  |
+| oxide-feature (DAG tree) | | oxide-mech (Rapier3d)   | | oxide-sim-topopt (SIMP)  |
+| oxide-cam (G-code)       | | oxide-metrology (GD&T)  | | oxide-plm (redb Items)   |
 +--------------------------+ +-------------------------+ +--------------------------+
                                            |
                                            v
@@ -45,23 +45,28 @@ Oxide-3D adopts an **Event-Sourced Document & Command Bus Model** with strict se
 
 ---
 
-## 2. Core Pillars
+## 2. Core Pillars & Multi-Paradigm Unification
 
-### 2.1 Event-Sourced Immutable Operation Log
-Every design action is captured as an `OxideCommand` and stored in an append-only operation log:
-- **Deterministic Replay**: Re-evaluates models identically across operating systems.
-- **Git-Native 3D Versioning**: Operations merge cleanly with CRDT algorithms (`automerge`).
-- **Instant Undo/Redo**: History navigation without mutating fragile document pointers.
+### 2.1 Event-Sourced Immutable Operation Log (`oxide-core::event_log`)
+Every design action is captured as an `OperationRecord` with millisecond UUIDv7 keys in an append-only log:
+- **Deterministic Replay**: Re-evaluates parametric models and modifier stacks identically across systems.
+- **Rollback Bar & Infinite Undo/Redo**: Rollback to any step $k$ in the timeline without mutating fragile pointers.
+- **Unified Multi-Paradigm Operations**: Handles CAD features (Extrude, Revolve, Fillet), DCC modifiers (Subdivision, Bevel, Geometry Nodes), and Animation keyframes in one chronological stream.
 
-### 2.2 Data-Oriented Assembly ECS
-- Uses `slotmap` keys (`EntityKey`, `PartKey`, `FaceKey`, `EdgeKey`, `VertexKey`) for $O(1)$ lookup.
-- Capable of streaming and managing 100,000+ parts at 60 FPS viewport frame rates.
+### 2.2 Dual-Topology Engine (`oxide-geo` & `oxide-geo-ops`)
+- **Exact Analytical B-Rep**: Boundary representation (`Vertex`, `Edge`, `Wire`, `Face`, `Shell`, `Solid`) for high-precision parametric CAD modeling.
+- **2D Drafting & OSNAP**: High-performance 2D CAD drafting with 11-mode precision snapping (Endpoint, Midpoint, Center, Quadrant, Intersection, Tangent, Perpendicular, etc.) and native DWG/DXF exchange.
+- **Polygonal Tessellation Bridge**: Real-time adaptive tessellation syncing B-Rep solids to GPU triangle meshes for DCC sculpting and PBR rendering.
 
-### 2.3 Heterogeneous Compute Acceleration
+### 2.3 Data-Oriented Assembly ECS (`oxide-scene`)
+- Uses `slotmap` keys (`EntityKey`, `PartKey`, `FaceKey`, `EdgeKey`, `VertexKey`) for $O(1)$ cache-friendly lookup.
+- Capable of streaming and managing 100,000+ parts at 60 FPS viewport frame rates with spatial BVH acceleration.
+
+### 2.4 Heterogeneous Compute Acceleration (`oxide-compute-runtime` & `oxide-hal`)
 - **CUDA & ROCm**: Double-precision (FP64) sparse solvers for FEA and high-speed LBM CFD.
 - **Metal & Vulkan**: GPU viewport rendering, GPU color picking, and real-time topology optimization isosurfaces.
 - **CPU Parallel Fallback**: Rayon multi-threading with SIMD for exact CAD boolean operations.
 
-### 2.4 Strict Safety Boundaries
-- Unsafe driver bindings are isolated exclusively within backend crates (`oxide-backend-*`) and safe FFI wrappers (`oxide-ffi-safe`).
-- All application and domain logic is 100% safe Rust.
+### 2.5 Native Model Context Protocol (MCP) Automation (`oxide-automation`)
+- Embedded JSON-RPC 2.0 MCP server over stdio for external AI agents.
+- Tools for automated geometric creation, drawing queries, layer setup, and format exports.

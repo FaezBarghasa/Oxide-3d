@@ -4,9 +4,9 @@ Detailed design specifications for individual subsystems within Oxide-3D.
 
 ---
 
-## 1. Domain Modeling & B-Rep Topology (`oxide-geo` & `oxide-geo-ops`)
+## 1. Domain Modeling & Dual-Topology Core (`oxide-geo` & `oxide-geo-ops`)
 
-### 1.1 Topology Hierarchy
+### 1.1 B-Rep Topology Hierarchy
 - **Vertex (0D)**: Cartesian coordinate `[f64; 3]`.
 - **Edge (1D)**: Oriented connection between two vertices bound to a 3D parametric curve (Line, Circle, NURBS).
 - **Wire (1D)**: Closed loop of connected edges forming face boundaries and inner hole cutouts.
@@ -14,7 +14,12 @@ Detailed design specifications for individual subsystems within Oxide-3D.
 - **Shell (2D)**: Connected set of faces with watertight manifold validation.
 - **Solid (3D)**: Closed outer shell with optional internal cavity shells.
 
-### 1.2 Kernel Trait (`GeometryKernel`)
+### 1.2 2D Drafting & Snapping Engine
+- **Entities**: Line, Polyline, Circle, Arc, Ellipse, Hatch boundary loops, Text.
+- **Precision Snapping (`OsnapMode`)**: 11-mode search (`Endpoint`, `Midpoint`, `Center`, `GeometricCenter`, `Quadrant`, `Intersection`, `Perpendicular`, `Tangent`, `Nearest`, `Parallel`).
+- **Layers & Annotation**: `CadLayer`, `DimensionEntity` (Linear, Aligned, Radius, Diameter, Angular), `MultiLeader`, and Paper Space Viewports (`MVIEW`).
+
+### 1.3 Kernel Trait (`GeometryKernel`)
 ```rust
 pub trait GeometryKernel: Send + Sync {
     fn boolean(&self, a: SolidKey, b: SolidKey, opts: BooleanOptions) -> KernelResult<SolidKey>;
@@ -25,7 +30,18 @@ pub trait GeometryKernel: Send + Sync {
 
 ---
 
-## 2. Procedural Geometry Nodes Engine (`oxide-nodes`)
+## 2. Event-Sourced Document Model (`oxide-core::event_log`)
+
+- **Append-Only Immutable Stream**: Every atomic modeling action is recorded with a time-ordered UUIDv7 `OperationId`.
+- **Temporal Cursor Sliding**: The rollback bar and undo/redo adjust the active execution cursor $k \in [0, N]$ without memory reallocations.
+- **Multi-Paradigm Payloads**:
+  - `CadFeature`: Extrude, Revolve, Fillet, Chamfer, Pattern.
+  - `DccModifier`: Subdivision, Mirror, Bevel, Boolean, Geometry Nodes.
+  - `AnimationKey`: Time, property path, and controller value.
+
+---
+
+## 3. Procedural Geometry Nodes Engine (`oxide-nodes`)
 
 - **DAG Structure**: Evaluated using topological sort via `petgraph`.
 - **Socket Types**:
@@ -38,7 +54,7 @@ pub trait GeometryKernel: Send + Sync {
 
 ---
 
-## 3. Simulation Architecture (`oxide-sim-*`)
+## 4. Simulation Architecture (`oxide-sim-*`)
 
 | Subsystem | Method | Accelerators | Primary Use Case |
 |---|---|---|---|
@@ -48,14 +64,14 @@ pub trait GeometryKernel: Send + Sync {
 
 ---
 
-## 4. Product Lifecycle Management & Persistence (`oxide-plm`, `oxide-persist`)
+## 5. Product Lifecycle Management & Persistence (`oxide-plm`, `oxide-persist`)
 
-### 4.1 PLM Data Models
+### 5.1 PLM Data Models
 - **`Item`**: Item ID, Part Number, Revision, Lifecycle State (`InWork`, `InReview`, `Released`, `Obsolete`).
 - **`BomEntry`**: Hierarchical tree links with quantities and drawing find numbers.
 - **Database Engine**: Embedded zero-overhead transactional `redb`.
 
-### 4.2 Native `.oxd` Container Format
+### 5.2 Native `.oxd` Container Format
 - **Manifest**: JSON format specification and metadata.
-- **Operation Log**: Append-only log of `OxideCommand` actions.
+- **Operation Log**: Append-only log of `OxideCommand` / `OperationRecord` actions.
 - **Chunked Blobs**: Zstd-compressed binary geometry and simulation fields with `memmap2` streaming.

@@ -12,11 +12,14 @@ pub mod event;
 pub mod id;
 /// Physical engineering units and dimension conversions.
 pub mod units;
+/// Event-sourced append-only operational log and rollback manager.
+pub mod event_log;
 
 pub use bus::CommandBus;
 pub use command::OxideCommand;
 pub use error::{CoreError, CoreResult};
 pub use event::{EventCallback, OxideEvent};
+pub use event_log::{EventLog, OperationPayload, OperationRecord, OperationStatus};
 pub use id::{
     EdgeKey, EntityKey, FaceKey, OperationId, PartKey, ShellKey, SolidKey, VertexKey, WireKey,
 };
