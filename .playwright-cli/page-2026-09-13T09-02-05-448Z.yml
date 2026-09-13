@@ -1,0 +1,153 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - generic [ref=f1e3]:
+      - text: OXIDE-3D
+      - generic [ref=f1e4]: PRO
+    - button "File" [ref=f1e5] [cursor=pointer]
+    - button "Edit" [ref=f1e6] [cursor=pointer]
+    - button "Tools" [ref=f1e7] [cursor=pointer]
+    - button "Group" [ref=f1e8] [cursor=pointer]
+    - button "Views" [ref=f1e9] [cursor=pointer]
+    - button "Create" [ref=f1e10] [cursor=pointer]
+    - button "Modifiers" [ref=f1e11] [cursor=pointer]
+    - button "Animation" [ref=f1e12] [cursor=pointer]
+    - button "CAM" [ref=f1e13] [cursor=pointer]
+    - button "PLM" [ref=f1e14] [cursor=pointer]
+    - button "Rendering" [ref=f1e15] [cursor=pointer]
+    - button "Customize" [ref=f1e16] [cursor=pointer]
+    - button "Help" [ref=f1e17] [cursor=pointer]
+    - button "📑 Layers" [ref=f1e18] [cursor=pointer]
+    - button "⛶ Maximize" [ref=f1e19] [cursor=pointer]
+  - generic [ref=f1e20]:
+    - generic [ref=f1e21]:
+      - button "📐 Precision CAD" [ref=f1e22] [cursor=pointer]
+      - button "🎨 3D DCC" [ref=f1e23] [cursor=pointer]
+      - button "⚙️ CAM Toolpath" [ref=f1e24] [cursor=pointer]
+      - button "📦 PLM Costing" [ref=f1e25] [cursor=pointer]
+    - generic [ref=f1e26]:
+      - button "+ Box" [ref=f1e27] [cursor=pointer]
+      - button "+ Cyl" [ref=f1e28] [cursor=pointer]
+      - button "+ Pyr" [ref=f1e29] [cursor=pointer]
+      - button "Extrude" [ref=f1e30] [cursor=pointer]
+      - button "Union" [ref=f1e31] [cursor=pointer]
+    - generic [ref=f1e32]:
+      - button "Generate G-Code" [ref=f1e33] [cursor=pointer]
+      - button "Audit BOM" [ref=f1e34] [cursor=pointer]
+  - generic [ref=f1e35]:
+    - generic [ref=f1e36]:
+      - generic [ref=f1e38]:
+        - generic [ref=f1e39]: TOP
+        - generic [ref=f1e40]: "[Wireframe 2D]"
+      - generic [ref=f1e43]:
+        - generic [ref=f1e44]: FRONT
+        - generic [ref=f1e45]: "[Wireframe 2D]"
+      - generic [ref=f1e48]:
+        - generic [ref=f1e49]: LEFT
+        - generic [ref=f1e50]: "[Wireframe 2D]"
+      - generic [ref=f1e52]:
+        - generic [ref=f1e53]:
+          - generic [ref=f1e54]: PERSPECTIVE
+          - generic [ref=f1e55]: "[PBR Shaded + Edges]"
+        - generic "Click face to align camera" [ref=f1e56]:
+          - generic [ref=f1e57] [cursor=pointer]: TL
+          - generic [ref=f1e58] [cursor=pointer]: TOP
+          - generic [ref=f1e59] [cursor=pointer]: TR
+          - generic [ref=f1e60] [cursor=pointer]: LEFT
+          - generic [ref=f1e61] [cursor=pointer]: ISO
+          - generic [ref=f1e62] [cursor=pointer]: RIGHT
+          - generic [ref=f1e63] [cursor=pointer]: BL
+          - generic [ref=f1e64] [cursor=pointer]: FRONT
+          - generic [ref=f1e65] [cursor=pointer]: BR
+        - generic [ref=f1e66]:
+          - generic [ref=f1e67]: "X: 100.0"
+          - generic [ref=f1e68]: "Y: 50.0"
+          - generic [ref=f1e69]: "Z: 25.0"
+          - generic [ref=f1e70]: "| GIZMO: W"
+    - generic [ref=f1e72]:
+      - generic [ref=f1e73]:
+        - generic [ref=f1e74] [cursor=pointer]: CREATE
+        - generic [ref=f1e75] [cursor=pointer]: MODIFY
+        - generic [ref=f1e76] [cursor=pointer]: HIERARCHY
+        - generic [ref=f1e77] [cursor=pointer]: MOTION
+        - generic [ref=f1e78] [cursor=pointer]: DISPLAY
+        - generic [ref=f1e79] [cursor=pointer]: UTILITIES
+      - generic [ref=f1e193]:
+        - generic [ref=f1e194] [cursor=pointer]:
+          - generic [ref=f1e195]: Modifier Stack
+          - generic [ref=f1e196]: ▼
+        - generic [ref=f1e197]:
+          - generic [ref=f1e198]:
+            - generic [ref=f1e199] [cursor=pointer]:
+              - generic [ref=f1e200]: 👁 Editable Poly
+              - generic [ref=f1e201]: 🔒
+            - generic [ref=f1e202] [cursor=pointer]:
+              - generic [ref=f1e203]: 👁 TurboSmooth
+              - generic [ref=f1e204]: "[x2]"
+            - generic [ref=f1e205] [cursor=pointer]:
+              - generic [ref=f1e206]: 👁 Bevel / Chamfer
+              - generic [ref=f1e207]: 2.0mm
+          - generic [ref=f1e208]:
+            - button "TurboSmooth" [ref=f1e209] [cursor=pointer]
+            - button "Chamfer" [ref=f1e210] [cursor=pointer]
+    - generic [ref=f1e150]:
+      - generic [ref=f1e151]:
+        - generic [ref=f1e152]: 📑 CAD Layers Manager
+        - button "✕" [ref=f1e153] [cursor=pointer]
+      - table [ref=f1e154]:
+        - rowgroup [ref=f1e155]:
+          - row [ref=f1e156]:
+            - columnheader "Status" [ref=f1e157]
+            - columnheader "Name" [ref=f1e158]
+            - columnheader "Color" [ref=f1e159]
+            - columnheader "Linetype" [ref=f1e160]
+            - columnheader "Weight" [ref=f1e161]
+        - rowgroup [ref=f1e162]:
+          - row [ref=f1e163]:
+            - cell "👁 🔒" [ref=f1e164]
+            - cell "0 (Default)" [ref=f1e165]
+            - cell "White" [ref=f1e166]
+            - cell "Continuous" [ref=f1e168]
+            - cell "Default" [ref=f1e169]
+          - row [ref=f1e170]:
+            - cell "👁" [ref=f1e171]
+            - cell "Geometry" [ref=f1e172]
+            - cell "Orange" [ref=f1e173]
+            - cell "Continuous" [ref=f1e175]
+            - cell "0.35 mm" [ref=f1e176]
+          - row [ref=f1e177]:
+            - cell "👁" [ref=f1e178]
+            - cell "Dimensions" [ref=f1e179]
+            - cell "Cyan" [ref=f1e180]
+            - cell "Continuous" [ref=f1e182]
+            - cell "0.18 mm" [ref=f1e183]
+          - row [ref=f1e184]:
+            - cell "👁" [ref=f1e185]
+            - cell "Hidden" [ref=f1e186]
+            - cell "Red" [ref=f1e187]
+            - cell "Dashed" [ref=f1e189]
+            - cell "0.15 mm" [ref=f1e190]
+  - generic [ref=f1e126]:
+    - button "▶" [ref=f1e127] [cursor=pointer]
+    - button "⏮" [ref=f1e128] [cursor=pointer]
+    - button "⏭" [ref=f1e129] [cursor=pointer]
+    - generic [ref=f1e130]: 0 / 100
+    - slider [ref=f1e131] [cursor=pointer]: "0"
+    - generic [ref=f1e132]: "FPS: 60 (SMPTE)"
+  - generic [ref=f1e133]:
+    - generic [ref=f1e134]:
+      - generic [ref=f1e135]: Oxide-3D Industrial Kernel v2026.4 initialized. Type 'HELP' for commands.
+      - generic [ref=f1e136]: "Created B-Rep Solid Primitive: Box (12 triangles)"
+      - generic [ref=f1e191]: "Created B-Rep Solid Primitive: Cylinder (92 triangles)"
+    - generic [ref=f1e137]:
+      - generic [ref=f1e138]: "Command:"
+      - textbox "Type command alias (L, C, BOX, CYL, EXT, BOM, GCODE) or '#' for absolute coords..." [ref=f1e139]
+  - generic [ref=f1e140]:
+    - generic [ref=f1e141]: "X: 74.6875 Y: 83.8889 Z: 0.0000"
+    - button "MODEL" [ref=f1e142] [cursor=pointer]
+    - button "GRID (F7)" [ref=f1e143] [cursor=pointer]
+    - button "ORTHO (F8)" [ref=f1e144] [cursor=pointer]
+    - button "POLAR (F10)" [ref=f1e145] [cursor=pointer]
+    - button "OSNAP (F3)" [ref=f1e146] [cursor=pointer]
+    - button "DYN (F12)" [ref=f1e147] [cursor=pointer]
+    - button "LWT" [ref=f1e148] [cursor=pointer]
+    - generic [ref=f1e149]: "Created B-Rep Solid Primitive: Cylinder (92 triangles)"
