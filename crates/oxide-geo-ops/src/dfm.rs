@@ -5,7 +5,7 @@
 //! - Subtractive (CNC Milling Aluminum): Tool accessibility cones, internal corner fillet radius, pocket aspect ratio.
 //! - Injection Molded Plastics: Draft angles against mold pull direction, parting line analysis, wall thickness variation.
 
-use oxide_geo::mesh::TriMesh;
+use oxide_geo::mesh_bridge::TessellatedMesh;
 use serde::{Deserialize, Serialize};
 
 /// Classification of DFM issue severity.
@@ -106,7 +106,7 @@ pub struct DfmEngine;
 
 impl DfmEngine {
     /// Analyze mesh for 3D Printing / Additive issues (overhangs requiring support structures).
-    pub fn analyze_additive(mesh: &TriMesh, config: &AdditiveDfmConfig) -> Vec<DfmIssue> {
+    pub fn analyze_additive(mesh: &TessellatedMesh, config: &AdditiveDfmConfig) -> Vec<DfmIssue> {
         let mut issues = Vec::new();
         let bz = config.build_direction;
         let b_len = (bz[0] * bz[0] + bz[1] * bz[1] + bz[2] * bz[2]).sqrt();
@@ -128,9 +128,9 @@ impl DfmEngine {
                 continue;
             }
 
-            let p0 = mesh.positions[i0];
-            let p1 = mesh.positions[i1];
-            let p2 = mesh.positions[i2];
+            let p0 = [mesh.positions[i0][0] as f64, mesh.positions[i0][1] as f64, mesh.positions[i0][2] as f64];
+            let p1 = [mesh.positions[i1][0] as f64, mesh.positions[i1][1] as f64, mesh.positions[i1][2] as f64];
+            let p2 = [mesh.positions[i2][0] as f64, mesh.positions[i2][1] as f64, mesh.positions[i2][2] as f64];
 
             // Compute triangle normal
             let u = [p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]];
@@ -151,7 +151,7 @@ impl DfmEngine {
 
             // Downward-facing face: dot < 0
             if dot < -0.01 {
-                let overhang_angle_from_horiz = (-dot).asin(); // angle from horizontal
+                let overhang_angle_from_horiz = (-dot).asin();
                 if overhang_angle_from_horiz < (std::f64::consts::FRAC_PI_2 - max_angle_rad) {
                     let centroid = [
                         (p0[0] + p1[0] + p2[0]) / 3.0,
@@ -180,7 +180,7 @@ impl DfmEngine {
     }
 
     /// Analyze mesh for CNC Milling accessibility and pocket issues.
-    pub fn analyze_cnc_milling(mesh: &TriMesh, config: &CncMillingDfmConfig) -> Vec<DfmIssue> {
+    pub fn analyze_cnc_milling(mesh: &TessellatedMesh, config: &CncMillingDfmConfig) -> Vec<DfmIssue> {
         let mut issues = Vec::new();
         let s = config.spindle_axis;
         let s_len = (s[0] * s[0] + s[1] * s[1] + s[2] * s[2]).sqrt();
@@ -200,9 +200,9 @@ impl DfmEngine {
                 continue;
             }
 
-            let p0 = mesh.positions[i0];
-            let p1 = mesh.positions[i1];
-            let p2 = mesh.positions[i2];
+            let p0 = [mesh.positions[i0][0] as f64, mesh.positions[i0][1] as f64, mesh.positions[i0][2] as f64];
+            let p1 = [mesh.positions[i1][0] as f64, mesh.positions[i1][1] as f64, mesh.positions[i1][2] as f64];
+            let p2 = [mesh.positions[i2][0] as f64, mesh.positions[i2][1] as f64, mesh.positions[i2][2] as f64];
 
             let u = [p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]];
             let v = [p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]];
@@ -244,7 +244,7 @@ impl DfmEngine {
     }
 
     /// Analyze mesh for Injection Molding draft angles.
-    pub fn analyze_injection_molding(mesh: &TriMesh, config: &InjectionMoldingDfmConfig) -> Vec<DfmIssue> {
+    pub fn analyze_injection_molding(mesh: &TessellatedMesh, config: &InjectionMoldingDfmConfig) -> Vec<DfmIssue> {
         let mut issues = Vec::new();
         let p = config.pull_direction;
         let p_len = (p[0] * p[0] + p[1] * p[1] + p[2] * p[2]).sqrt();
@@ -266,9 +266,9 @@ impl DfmEngine {
                 continue;
             }
 
-            let p0 = mesh.positions[i0];
-            let p1 = mesh.positions[i1];
-            let p2 = mesh.positions[i2];
+            let p0 = [mesh.positions[i0][0] as f64, mesh.positions[i0][1] as f64, mesh.positions[i0][2] as f64];
+            let p1 = [mesh.positions[i1][0] as f64, mesh.positions[i1][1] as f64, mesh.positions[i1][2] as f64];
+            let p2 = [mesh.positions[i2][0] as f64, mesh.positions[i2][1] as f64, mesh.positions[i2][2] as f64];
 
             let u = [p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]];
             let v = [p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]];
@@ -318,8 +318,8 @@ impl DfmEngine {
 mod tests {
     use super::*;
 
-    fn create_test_cube() -> TriMesh {
-        TriMesh {
+    fn create_test_cube() -> TessellatedMesh {
+        TessellatedMesh {
             positions: vec![
                 [0.0, 0.0, 0.0],
                 [10.0, 0.0, 0.0],
@@ -345,7 +345,6 @@ mod tests {
                 1, 2, 6, 1, 6, 5,
             ],
             normals: vec![],
-            uvs: vec![],
         }
     }
 

@@ -3,7 +3,7 @@
 //! Projects 3D B-Rep / meshes to 2D standard views (Front, Top, Right, Isometric)
 //! and exports production-ready SVG and DXF files with title blocks and dimension annotations.
 
-use oxide_geo::mesh::TriMesh;
+use oxide_geo::mesh_bridge::TessellatedMesh;
 use serde::{Deserialize, Serialize};
 
 /// Standard 2D Orthographic Drawing View Kind.
@@ -74,7 +74,7 @@ impl DrawingSheet {
     }
 
     /// Add a projected viewport for a 3D mesh.
-    pub fn add_view(&mut self, mesh: &TriMesh, kind: DrawingViewKind, center_mm: [f64; 2], scale: f64) {
+    pub fn add_view(&mut self, mesh: &TessellatedMesh, kind: DrawingViewKind, center_mm: [f64; 2], scale: f64) {
         let edges = project_mesh_to_view(mesh, kind, center_mm, scale);
         self.viewports.push(DrawingViewport {
             kind,
@@ -88,23 +88,26 @@ impl DrawingSheet {
     pub fn export_svg(&self) -> String {
         let mut svg = String::new();
         svg.push_str(&format!(
-            r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {:.1} {:.1}" width="{:.1}mm" height="{:.1}mm">\n"#,
+            r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {:.1} {:.1}" width="{:.1}mm" height="{:.1}mm">"#,
             self.width_mm, self.height_mm, self.width_mm, self.height_mm
         ));
+        svg.push('\n');
         svg.push_str(r#"  <style>
     .sheet-border { fill: #ffffff; stroke: #000000; stroke-width: 0.7; }
     .title-block { fill: none; stroke: #000000; stroke-width: 0.35; }
     .title-text { font-family: sans-serif; font-size: 3.5px; fill: #000000; font-weight: bold; }
     .visible-edge { stroke: #000000; stroke-width: 0.5; stroke-linecap: round; fill: none; }
     .hidden-edge { stroke: #666666; stroke-width: 0.25; stroke-dasharray: 2,1; fill: none; }
-  </style>\n"#);
+  </style>"#);
+        svg.push('\n');
 
         // Sheet background and border
         svg.push_str(&format!(
-            r#"  <rect class="sheet-border" x="10" y="10" width="{:.1}" height="{:.1}" />\n"#,
+            r#"  <rect class="sheet-border" x="10" y="10" width="{:.1}" height="{:.1}" />"#,
             self.width_mm - 20.0,
             self.height_mm - 20.0
         ));
+        svg.push('\n');
 
         // Title Block in bottom right corner
         let tb_w = 140.0;
@@ -113,29 +116,33 @@ impl DrawingSheet {
         let tb_y = self.height_mm - 10.0 - tb_h;
 
         svg.push_str(&format!(
-            r#"  <rect class="title-block" x="{:.1}" y="{:.1}" width="{:.1}" height="{:.1}" />\n"#,
+            r#"  <rect class="title-block" x="{:.1}" y="{:.1}" width="{:.1}" height="{:.1}" />"#,
             tb_x, tb_y, tb_w, tb_h
         ));
+        svg.push('\n');
         svg.push_str(&format!(
-            r#"  <text class="title-text" x="{:.1}" y="{:.1}">TITLE: {}</text>\n"#,
+            r#"  <text class="title-text" x="{:.1}" y="{:.1}">TITLE: {}</text>"#,
             tb_x + 5.0,
             tb_y + 12.0,
             self.title
         ));
+        svg.push('\n');
         svg.push_str(&format!(
-            r#"  <text class="title-text" x="{:.1}" y="{:.1}">ENGINE: OXIDE-3D CAD/CAM</text>\n"#,
+            r#"  <text class="title-text" x="{:.1}" y="{:.1}">ENGINE: OXIDE-3D CAD/CAM</text>"#,
             tb_x + 5.0,
             tb_y + 22.0
         ));
+        svg.push('\n');
 
         // Emit viewports
         for vp in &self.viewports {
             for edge in &vp.edges {
                 let class_name = if edge.is_hidden { "hidden-edge" } else { "visible-edge" };
                 svg.push_str(&format!(
-                    r#"  <line class="{}" x1="{:.2}" y1="{:.2}" x2="{:.2}" y2="{:.2}" />\n"#,
+                    r#"  <line class="{}" x1="{:.2}" y1="{:.2}" x2="{:.2}" y2="{:.2}" />"#,
                     class_name, edge.start[0], edge.start[1], edge.end[0], edge.end[1]
                 ));
+                svg.push('\n');
             }
         }
 
@@ -170,7 +177,7 @@ impl DrawingSheet {
 
 /// Project 3D mesh triangle boundary edges onto a 2D sheet view.
 fn project_mesh_to_view(
-    mesh: &TriMesh,
+    mesh: &TessellatedMesh,
     kind: DrawingViewKind,
     center_mm: [f64; 2],
     scale: f64,
@@ -187,9 +194,9 @@ fn project_mesh_to_view(
             continue;
         }
 
-        let p0 = mesh.positions[i0];
-        let p1 = mesh.positions[i1];
-        let p2 = mesh.positions[i2];
+        let p0 = [mesh.positions[i0][0] as f64, mesh.positions[i0][1] as f64, mesh.positions[i0][2] as f64];
+        let p1 = [mesh.positions[i1][0] as f64, mesh.positions[i1][1] as f64, mesh.positions[i1][2] as f64];
+        let p2 = [mesh.positions[i2][0] as f64, mesh.positions[i2][1] as f64, mesh.positions[i2][2] as f64];
 
         let pt2d_0 = project_point_3d_to_2d(p0, kind, center_mm, scale);
         let pt2d_1 = project_point_3d_to_2d(p1, kind, center_mm, scale);
@@ -230,8 +237,8 @@ fn project_point_3d_to_2d(
 mod tests {
     use super::*;
 
-    fn create_test_cube() -> TriMesh {
-        TriMesh {
+    fn create_test_cube() -> TessellatedMesh {
+        TessellatedMesh {
             positions: vec![
                 [0.0, 0.0, 0.0],
                 [20.0, 0.0, 0.0],
@@ -247,7 +254,6 @@ mod tests {
                 4, 5, 6, 4, 6, 7,
             ],
             normals: vec![],
-            uvs: vec![],
         }
     }
 

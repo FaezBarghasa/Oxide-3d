@@ -449,15 +449,8 @@ impl ConstraintSolver3D {
                 rhs[(i, 0)] = -sum;
             }
 
-            // Solve normal equations via faer Cholesky
-            let chol = match jtj.cholesky(faer::Side::Lower) {
-                Ok(c) => c,
-                Err(_) => {
-                    lambda *= 10.0;
-                    continue;
-                }
-            };
-            let delta = chol.solve(&rhs);
+            // Solve normal equations via faer LU decomposition
+            let delta = jtj.partial_piv_lu().solve(&rhs);
 
             // Trial update
             let mut trial_poses = self.poses.clone();
