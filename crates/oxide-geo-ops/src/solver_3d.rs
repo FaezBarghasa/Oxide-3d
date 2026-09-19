@@ -183,53 +183,83 @@ fn px_dummy(vx: f64, _vy: f64) -> f64 {
 pub enum Constraint3D {
     /// Lock body pose to fixed world coordinates.
     FixBody {
+        /// Body index.
         body: usize,
+        /// Target dual quaternion pose.
         target: DualQuaternion,
     },
     /// Point-on-Point coincidence constraint (removes 3 DOF).
     PointCoincident {
+        /// Body A index.
         body_a: usize,
+        /// Local 3D point on body A.
         local_point_a: [f64; 3],
+        /// Body B index.
         body_b: usize,
+        /// Local 3D point on body B.
         local_point_b: [f64; 3],
     },
     /// Coaxial / Concentric constraint (aligns axis and ensures collinear points, removes 4 DOF).
     Concentric {
+        /// Body A index.
         body_a: usize,
+        /// Local direction axis on body A.
         local_axis_a: [f64; 3],
+        /// Local point on body A axis.
         local_point_a: [f64; 3],
+        /// Body B index.
         body_b: usize,
+        /// Local direction axis on body B.
         local_axis_b: [f64; 3],
+        /// Local point on body B axis.
         local_point_b: [f64; 3],
     },
     /// Parallel axes constraint (removes 2 DOF).
     ParallelAxes {
+        /// Body A index.
         body_a: usize,
+        /// Local direction axis on body A.
         local_axis_a: [f64; 3],
+        /// Body B index.
         body_b: usize,
+        /// Local direction axis on body B.
         local_axis_b: [f64; 3],
     },
     /// Perpendicular axes constraint (dot product = 0, removes 1 DOF).
     PerpendicularAxes {
+        /// Body A index.
         body_a: usize,
+        /// Local direction axis on body A.
         local_axis_a: [f64; 3],
+        /// Body B index.
         body_b: usize,
+        /// Local direction axis on body B.
         local_axis_b: [f64; 3],
     },
     /// Fixed Euclidean distance between two points (removes 1 DOF).
     Distance {
+        /// Body A index.
         body_a: usize,
+        /// Local point on body A.
         local_point_a: [f64; 3],
+        /// Body B index.
         body_b: usize,
+        /// Local point on body B.
         local_point_b: [f64; 3],
+        /// Target distance.
         target_distance: f64,
     },
     /// Fixed Angle in radians between two direction axes (removes 1 DOF).
     Angle {
+        /// Body A index.
         body_a: usize,
+        /// Local direction axis on body A.
         local_axis_a: [f64; 3],
+        /// Body B index.
         body_b: usize,
+        /// Local direction axis on body B.
         local_axis_b: [f64; 3],
+        /// Target angle in radians.
         target_angle_rad: f64,
     },
 }
@@ -238,18 +268,34 @@ pub enum Constraint3D {
 #[derive(Debug, Clone, PartialEq)]
 pub enum SolverStatus {
     /// Solved within tolerance.
-    Converged { iterations: usize, final_residual: f64 },
+    Converged {
+        /// Iterations executed.
+        iterations: usize,
+        /// Final residual norm.
+        final_residual: f64,
+    },
     /// Residual failed to drop below tolerance within max iterations.
-    MaxIterationsReached { iterations: usize, final_residual: f64 },
+    MaxIterationsReached {
+        /// Iterations executed.
+        iterations: usize,
+        /// Final residual norm.
+        final_residual: f64,
+    },
     /// Overconstrained conflicting constraint detected.
-    OverConstrainedConflict { residual_norm: f64 },
+    OverConstrainedConflict {
+        /// Residual norm magnitude.
+        residual_norm: f64,
+    },
 }
 
 /// Configuration for Levenberg-Marquardt solver.
 #[derive(Debug, Clone)]
 pub struct SolverConfig {
+    /// Maximum iterations.
     pub max_iterations: usize,
+    /// Convergence tolerance epsilon.
     pub tolerance: f64,
+    /// Initial Tikhonov damping factor lambda.
     pub initial_damping: f64,
 }
 
@@ -266,8 +312,11 @@ impl Default for SolverConfig {
 /// Variational 3D Assembly & Sketch Constraint Solver.
 #[derive(Debug, Clone, Default)]
 pub struct ConstraintSolver3D {
+    /// Current dual quaternion poses per body.
     pub poses: Vec<DualQuaternion>,
+    /// Whether each body is fixed (grounded).
     pub is_fixed: Vec<bool>,
+    /// Applied 3D geometric constraints.
     pub constraints: Vec<Constraint3D>,
 }
 

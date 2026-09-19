@@ -102,6 +102,7 @@ impl Default for InjectionMoldingDfmConfig {
 }
 
 /// Design for Manufacturability (DFM) Comprehensive Engine.
+#[derive(Debug, Clone, Copy, Default)]
 pub struct DfmEngine;
 
 impl DfmEngine {
@@ -149,10 +150,12 @@ impl DfmEngine {
             // Dot product with build vector
             let dot = n_norm[0] * b_norm[0] + n_norm[1] * b_norm[1] + n_norm[2] * b_norm[2];
 
-            // Downward-facing face: dot < 0
+            // Downward-facing face: dot < -0.01
             if dot < -0.01 {
-                let overhang_angle_from_horiz = (-dot).asin();
-                if overhang_angle_from_horiz < (std::f64::consts::FRAC_PI_2 - max_angle_rad) {
+                // Angle of surface relative to horizontal build plane:
+                // Normal pointing straight down (dot = -1.0) has surface slope = 0° (flat ceiling)
+                let surface_slope_rad = (-dot).clamp(-1.0, 1.0).acos();
+                if surface_slope_rad < max_angle_rad {
                     let centroid = [
                         (p0[0] + p1[0] + p2[0]) / 3.0,
                         (p0[1] + p1[1] + p2[1]) / 3.0,
@@ -163,13 +166,13 @@ impl DfmEngine {
                         rule_name: "Steep Unsupported Overhang",
                         severity: DfmSeverity::Warning,
                         description: format!(
-                            "Triangle {} overhangs at {:.1}° below threshold {:.1}°, requiring support structures.",
+                            "Triangle {} has surface slope {:.1}° below threshold {:.1}°, requiring support structures.",
                             i,
-                            overhang_angle_from_horiz.to_degrees(),
+                            surface_slope_rad.to_degrees(),
                             config.max_overhang_angle_deg
                         ),
                         location: Some(centroid),
-                        measured_value: overhang_angle_from_horiz.to_degrees(),
+                        measured_value: surface_slope_rad.to_degrees(),
                         threshold_limit: config.max_overhang_angle_deg,
                     });
                 }
