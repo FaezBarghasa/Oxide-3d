@@ -1,0 +1,11 @@
+{
+  "mcp_servers": {
+    "okf-generator": {
+      "command": "okf",
+      "args": [
+        "mcp",
+        "/home/jrad/RustroverProjects/Oxide-3d/okf_bundle"
+      ]
+    }
+  }
+}
