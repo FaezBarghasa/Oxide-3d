@@ -1,0 +1,45 @@
+---
+okf_version: "0.2"
+type: Function
+title: normal
+description: "Evaluate analytical outward normal vector on surface at parameters `(u, v)`."
+resource: crates/oxide-geo/src/surface.rs
+tags:
+  - "lang:rust"
+  - "type:Function"
+  - "module:crates"
+  - "domain:oxide-geo"
+  - "git:branch:master"
+  - "git:repo:Oxide-3d"
+timestamp: "2026-09-10T11:32:18Z"
+concept_id: crates/oxide-geo/src/surface/normal
+language: rust
+---
+
+# normal
+
+Evaluate analytical outward normal vector on surface at parameters `(u, v)`.
+
+## Signature
+
+```rust
+impl Surface3d { pub fn normal(&self, u: f64, v: f64) -> [f64; 3] }
+```
+
+## Visibility
+
+- `pub`
+
+## Docstring
+
+Evaluate analytical outward normal vector on surface at parameters `(u, v)`.
+[must_use]
+
+## Source
+Lines 169–185 in `crates/oxide-geo/src/surface.rs`
+
+## Relationships
+
+| Type | Target |
+|------|--------|
+| related | [surface](/crates/oxide-geo/src/surface.md) |

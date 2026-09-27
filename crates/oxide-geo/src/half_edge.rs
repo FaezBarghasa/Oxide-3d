@@ -1,8 +1,14 @@
 //! Manifold Half-Edge Data Structure for mesh editing, subdivisions, and sculpting.
+//!
+//! Implements Euler operators (MEV, KEV, MEF, KEF, SEMV) for topological
+//! manipulation while maintaining the Euler-Poincaré invariant:
+//! V - E + F = 2(S - G) + B
+//! where V=vertices, E=edges, F=faces, S=shells, G=genus, B=boundary loops.
 
 use glam::DVec3;
 use serde::{Deserialize, Serialize};
 use slotmap::{SlotMap, new_key_type};
+use thiserror::Error;
 
 new_key_type! {
     /// Key representing a vertex in the half-edge mesh.
@@ -11,6 +17,27 @@ new_key_type! {
     pub struct HalfEdgeKey;
     /// Key representing a face/polygon in the half-edge mesh.
     pub struct HeFaceKey;
+}
+
+/// Errors for Euler operator operations.
+#[derive(Debug, Error)]
+pub enum EulerError {
+    #[error("Invalid vertex key")]
+    InvalidVertex,
+    #[error("Invalid half-edge key")]
+    InvalidHalfEdge,
+    #[error("Invalid face key")]
+    InvalidFace,
+    #[error("Operation would create non-manifold geometry: {0}")]
+    NonManifold(String),
+    #[error("Topological invariant violated: V-E+F={computed}, expected {expected}")]
+    InvariantViolated { computed: i32, expected: i32 },
+    #[error("Boundary edge operation not allowed on interior edge")]
+    BoundaryOperationOnInterior,
+    #[error("Vertex not on boundary")]
+    VertexNotOnBoundary,
+    #[error("Face has less than 3 edges")]
+    DegenerateFace,
 }
 
 /// A vertex stored in the half-edge mesh.

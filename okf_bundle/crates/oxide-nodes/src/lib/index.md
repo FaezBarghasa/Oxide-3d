@@ -1,0 +1,135 @@
+# lib
+
+## Classs
+
+- [ConeNode](ConeNode.md) — Cone Primitive Node.
+- [CubeNode](CubeNode.md) — Cube Primitive Node.
+- [CylinderNode](CylinderNode.md) — Cylinder Primitive Node.
+- [GridNode](GridNode.md) — Grid Primitive Node.
+- [InstanceOnPointsNode](InstanceOnPointsNode.md) — Instance on Points Node.
+- [JoinGeometryNode](JoinGeometryNode.md) — Join Geometry Node.
+- [NodeConnection](NodeConnection.md) — Node Graph Connection Edge.
+- [NodeError](NodeError.md) — Geometry Nodes evaluation errors.
+- [NodeGraph](NodeGraph.md) — Procedural Node Graph Evaluation DAG.
+- [NodeMeshData](NodeMeshData.md) — Triangle Mesh payload passed through geometry node pipelines.
+- [NodeSocketValue](NodeSocketValue.md) — Dynamic value flowing through node graph sockets.
+- [OxideNode](OxideNode.md) — Trait for procedural geometry nodes.
+- [SocketDef](SocketDef.md) — Socket definition.
+- [SphereNode](SphereNode.md) — Sphere Primitive Node.
+- [SubdivideMeshNode](SubdivideMeshNode.md) — Subdivide Mesh Node.
+- [TorusNode](TorusNode.md) — Torus Primitive Node.
+- [TransformGeometryNode](TransformGeometryNode.md) — Transform Geometry Node.
+
+## Functions
+
+- [add_node](add_node.md) — Add a node to the graph and return its ID.
+- [add_node](add_node_1.md) — Add a node to the graph and return its ID.
+- [cone](cone.md) — Create a cone mesh given radius, height, and circumferential segments.
+- [cone](cone_1.md) — Create a cone mesh given radius, height, and circumferential segments.
+- [connect](connect.md) — Connect output socket of source node to input socket of destination node.
+- [connect](connect_1.md) — Connect output socket of source node to input socket of destination node.
+- [cube](cube.md) — Create a unit box/cube mesh with width, height, depth.
+- [cube](cube_1.md) — Create a unit box/cube mesh with width, height, depth.
+- [cylinder](cylinder.md) — Create a cylinder mesh given radius, height, and circumferential segments.
+- [cylinder](cylinder_1.md) — Create a cylinder mesh given radius, height, and circumferential segments.
+- [default](default.md)
+- [default](default_1.md)
+- [evaluate](evaluate.md)
+- [evaluate](evaluate_1.md)
+- [evaluate](evaluate_2.md)
+- [evaluate](evaluate_3.md)
+- [evaluate](evaluate_4.md)
+- [evaluate](evaluate_5.md)
+- [evaluate](evaluate_6.md)
+- [evaluate](evaluate_7.md)
+- [evaluate](evaluate_8.md)
+- [evaluate](evaluate_9.md)
+- [evaluate](evaluate_10.md)
+- [evaluate](evaluate_11.md)
+- [evaluate](evaluate_12.md)
+- [evaluate](evaluate_13.md)
+- [evaluate](evaluate_14.md)
+- [evaluate](evaluate_15.md)
+- [evaluate](evaluate_16.md)
+- [evaluate](evaluate_17.md)
+- [evaluate](evaluate_18.md)
+- [evaluate](evaluate_19.md)
+- [evaluate](evaluate_20.md) — Topologically evaluate the entire graph and return the output sockets for each node.
+- [evaluate](evaluate_21.md) — Topologically evaluate the entire graph and return the output sockets for each node.
+- [fmt](fmt.md)
+- [fmt](fmt_1.md)
+- [grid](grid.md) — Create a planar grid mesh.
+- [grid](grid_1.md) — Create a planar grid mesh.
+- [inputs](inputs.md)
+- [inputs](inputs_1.md)
+- [inputs](inputs_2.md)
+- [inputs](inputs_3.md)
+- [inputs](inputs_4.md)
+- [inputs](inputs_5.md)
+- [inputs](inputs_6.md)
+- [inputs](inputs_7.md)
+- [inputs](inputs_8.md)
+- [inputs](inputs_9.md)
+- [inputs](inputs_10.md)
+- [inputs](inputs_11.md)
+- [inputs](inputs_12.md)
+- [inputs](inputs_13.md)
+- [inputs](inputs_14.md)
+- [inputs](inputs_15.md)
+- [inputs](inputs_16.md)
+- [inputs](inputs_17.md)
+- [inputs](inputs_18.md)
+- [inputs](inputs_19.md)
+- [join](join.md) — Join another mesh into this mesh.
+- [join](join_1.md) — Join another mesh into this mesh.
+- [name](name.md)
+- [name](name_1.md)
+- [name](name_2.md)
+- [name](name_3.md)
+- [name](name_4.md)
+- [name](name_5.md)
+- [name](name_6.md)
+- [name](name_7.md)
+- [name](name_8.md)
+- [name](name_9.md)
+- [name](name_10.md)
+- [name](name_11.md)
+- [name](name_12.md)
+- [name](name_13.md)
+- [name](name_14.md)
+- [name](name_15.md)
+- [name](name_16.md)
+- [name](name_17.md)
+- [name](name_18.md)
+- [name](name_19.md)
+- [new](new.md) — Create a new empty node graph.
+- [new](new_1.md) — Create a new empty node graph.
+- [outputs](outputs.md)
+- [outputs](outputs_1.md)
+- [outputs](outputs_2.md)
+- [outputs](outputs_3.md)
+- [outputs](outputs_4.md)
+- [outputs](outputs_5.md)
+- [outputs](outputs_6.md)
+- [outputs](outputs_7.md)
+- [outputs](outputs_8.md)
+- [outputs](outputs_9.md)
+- [outputs](outputs_10.md)
+- [outputs](outputs_11.md)
+- [outputs](outputs_12.md)
+- [outputs](outputs_13.md)
+- [outputs](outputs_14.md)
+- [outputs](outputs_15.md)
+- [outputs](outputs_16.md)
+- [outputs](outputs_17.md)
+- [outputs](outputs_18.md)
+- [outputs](outputs_19.md)
+- [sphere](sphere.md) — Create a UV sphere mesh.
+- [sphere](sphere_1.md) — Create a UV sphere mesh.
+- [test_node_graph_evaluation](test_node_graph_evaluation.md) — [test]
+- [test_primitive_geometry_nodes](test_primitive_geometry_nodes.md) — [test]
+- [test_subdivide_and_instance_nodes](test_subdivide_and_instance_nodes.md) — [test]
+- [torus](torus.md) — Create a torus mesh.
+- [torus](torus_1.md) — Create a torus mesh.
+- [transform](transform.md) — Transform mesh vertices by translation offset and uniform scale.
+- [transform](transform_1.md) — Transform mesh vertices by translation offset and uniform scale.

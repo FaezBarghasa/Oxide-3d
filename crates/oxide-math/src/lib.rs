@@ -9,7 +9,7 @@ pub mod tolerance;
 /// 3D affine transformations and rigid body matrices.
 pub mod transform;
 
-pub use interval::Interval;
-pub use predicates::{orient2d, orient3d};
-pub use tolerance::Tolerance;
+pub use interval::{Interval, Interval3d};
+pub use predicates::{orient2d, orient2d_tol, orient3d, orient3d_tol, incircle, incircle_tol, insphere, insphere_tol};
+pub use tolerance::{Tolerance, ToleranceContext};
 pub use transform::Transform3;

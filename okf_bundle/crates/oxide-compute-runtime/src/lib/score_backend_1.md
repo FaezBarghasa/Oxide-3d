@@ -1,0 +1,33 @@
+---
+okf_version: "0.2"
+type: Function
+title: score_backend
+resource: crates/oxide-compute-runtime/src/lib.rs
+tags:
+  - "lang:rust"
+  - "type:Function"
+  - "module:crates"
+  - "domain:oxide-compute-runtime"
+  - "git:branch:master"
+  - "git:repo:Oxide-3d"
+timestamp: "2026-09-10T10:07:18Z"
+concept_id: crates/oxide-compute-runtime/src/lib/score_backend_1
+language: rust
+---
+
+# score_backend
+
+## Signature
+
+```rust
+fn score_backend(cap: &BackendCapabilities) -> u64
+```
+
+## Source
+Lines 114–133 in `crates/oxide-compute-runtime/src/lib.rs`
+
+## Relationships
+
+| Type | Target |
+|------|--------|
+| related | [lib](/crates/oxide-compute-runtime/src/lib.md) |
