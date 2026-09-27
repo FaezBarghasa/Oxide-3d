@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-ui-widgets"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T21:29:02Z"
 concept_id: _dependencies/cargo/iced_1
 language: manifest

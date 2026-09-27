@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-mech"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T21:56:49Z"
 concept_id: _dependencies/cargo/rapier3d_1
 language: manifest

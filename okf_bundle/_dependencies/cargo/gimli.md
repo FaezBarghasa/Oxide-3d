@@ -11,8 +11,8 @@ tags:
   - "git:branch:master"
   - "git:repo:Oxide-3d"
   - "ecosystem:cargo"
-  - "version:0.32.3"
   - "manifest:Cargo.lock"
+  - "version:0.32.3"
 timestamp: "2026-09-10T11:37:38Z"
 concept_id: _dependencies/cargo/gimli
 language: manifest

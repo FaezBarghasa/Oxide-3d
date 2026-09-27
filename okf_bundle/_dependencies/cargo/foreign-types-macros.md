@@ -11,8 +11,8 @@ tags:
   - "git:branch:master"
   - "git:repo:Oxide-3d"
   - "ecosystem:cargo"
-  - "version:0.2.4"
   - "manifest:Cargo.lock"
+  - "version:0.2.4"
 timestamp: "2026-09-10T11:37:38Z"
 concept_id: _dependencies/cargo/foreign-types-macros
 language: manifest

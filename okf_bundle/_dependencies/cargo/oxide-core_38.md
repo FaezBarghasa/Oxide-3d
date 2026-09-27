@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-backend-cpu"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T21:03:57Z"
 concept_id: _dependencies/cargo/oxide-core_38
 language: manifest

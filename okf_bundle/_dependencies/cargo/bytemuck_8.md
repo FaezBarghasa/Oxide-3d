@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-backend-vulkan"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T21:05:18Z"
 concept_id: _dependencies/cargo/bytemuck_8
 language: manifest

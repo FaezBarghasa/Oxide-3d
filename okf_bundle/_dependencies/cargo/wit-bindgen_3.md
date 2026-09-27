@@ -11,8 +11,8 @@ tags:
   - "domain:sdk"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T20:58:49Z"
 concept_id: _dependencies/cargo/wit-bindgen_3
 language: manifest

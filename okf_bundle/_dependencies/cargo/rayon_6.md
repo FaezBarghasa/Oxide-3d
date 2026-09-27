@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-sim-topopt"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T20:54:50Z"
 concept_id: _dependencies/cargo/rayon_6
 language: manifest

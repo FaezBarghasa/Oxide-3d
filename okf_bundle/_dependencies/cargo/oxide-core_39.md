@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-headless"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T20:58:13Z"
 concept_id: _dependencies/cargo/oxide-core_39
 language: manifest

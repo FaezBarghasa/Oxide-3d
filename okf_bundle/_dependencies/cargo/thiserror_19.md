@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-script-rhai"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T20:53:08Z"
 concept_id: _dependencies/cargo/thiserror_19
 language: manifest

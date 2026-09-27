@@ -10,8 +10,8 @@ tags:
   - "module:Cargo.lock"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "ecosystem:cargo"
   - "version:0.53.1"
+  - "ecosystem:cargo"
   - "manifest:Cargo.lock"
 timestamp: "2026-09-10T11:37:38Z"
 concept_id: _dependencies/cargo/windows_x86_64_gnullvm_2

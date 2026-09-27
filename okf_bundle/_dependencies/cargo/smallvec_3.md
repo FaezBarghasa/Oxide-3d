@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-core"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-10T11:05:22Z"
 concept_id: _dependencies/cargo/smallvec_3
 language: manifest

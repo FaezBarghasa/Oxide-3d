@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-plugins-wasm"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T20:53:43Z"
 concept_id: _dependencies/cargo/thiserror_20
 language: manifest

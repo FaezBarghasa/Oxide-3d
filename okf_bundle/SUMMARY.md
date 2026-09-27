@@ -3,7 +3,7 @@ description: 'Top-level OKF summary: 2846 concepts across 4 domains and 103 modu
 git_branch: master
 git_repo: Oxide-3d
 okf_version: '0.2'
-timestamp: '2026-09-27T20:34:24Z'
+timestamp: '2026-09-27T20:39:05Z'
 title: Oxide-3d — Knowledge Summary
 type: Index
 ---
@@ -85,13 +85,13 @@ Highest-value concepts across all domains (Classes and Functions with rich descr
 | [solve_linear_static](/crates/oxide-sim-fea/src/lib/solve_linear_static.md) | Function | `crates/oxide-sim-fea/src` | Solves a linear static stress analysis problem using Faer de… |
 | [ComputeError](/crates/oxide-compute/src/traits/ComputeError.md) | Class | `crates/oxide-compute/src` | Errors arising from compute device discovery, buffer allocat… |
 | [NativeComputeDevice](/crates/oxide-compute/src/native/NativeComputeDevice.md) | Class | `crates/oxide-compute/src` | Generic native accelerator device wrapper providing unified … |
+| [KernelRegistry](/crates/oxide-kernels/src/lib/KernelRegistry.md) | Class | `crates/oxide-kernels/src` | Central registry mapping engineering operations to hardware-… |
 | [calculate_bom_rollup](/crates/oxide-plm/src/lib/calculate_bom_rollup.md) | Function | `crates/oxide-plm/src` | Recursively calculate total aggregated bill of materials rol… |
 | [calculate_bom_rollup](/crates/oxide-plm/src/lib/calculate_bom_rollup_1.md) | Function | `crates/oxide-plm/src` | Recursively calculate total aggregated bill of materials rol… |
-| [KernelRegistry](/crates/oxide-kernels/src/lib/KernelRegistry.md) | Class | `crates/oxide-kernels/src` | Central registry mapping engineering operations to hardware-… |
 | [evaluate_true_position](/crates/oxide-metrology/src/lib/evaluate_true_position.md) | Function | `crates/oxide-metrology/src` | Evaluate True Position (RFS) for measured center points agai… |
 | [evaluate_true_position](/crates/oxide-metrology/src/lib/evaluate_true_position_1.md) | Function | `crates/oxide-metrology/src` | Evaluate True Position (RFS) for measured center points agai… |
-| [from_translation_rotation](/crates/oxide-geo-ops/src/solver_3d/from_translation_rotation.md) | Function | `crates/oxide-geo-ops/src` | Construct from translation vector [tx, ty, tz] and unit quat… |
-| [from_translation_rotation](/crates/oxide-geo-ops/src/solver_3d/from_translation_rotation_1.md) | Function | `crates/oxide-geo-ops/src` | Construct from translation vector [tx, ty, tz] and unit quat… |
+| [evaluate](/crates/oxide-nodes/src/lib/evaluate_20.md) | Function | `crates/oxide-nodes/src` | Topologically evaluate the entire graph and return the outpu… |
+| [evaluate](/crates/oxide-nodes/src/lib/evaluate_21.md) | Function | `crates/oxide-nodes/src` | Topologically evaluate the entire graph and return the outpu… |
 
 ## Usage with OpenCode
 

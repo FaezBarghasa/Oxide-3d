@@ -10,8 +10,8 @@ tags:
   - "module:Cargo.lock"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "ecosystem:cargo"
   - "version:0.6.0+11769913"
+  - "ecosystem:cargo"
   - "manifest:Cargo.lock"
 timestamp: "2026-09-10T11:37:38Z"
 concept_id: _dependencies/cargo/ndk-sys

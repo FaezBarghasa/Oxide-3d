@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-kernels"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T21:06:59Z"
 concept_id: _dependencies/cargo/thiserror_23
 language: manifest

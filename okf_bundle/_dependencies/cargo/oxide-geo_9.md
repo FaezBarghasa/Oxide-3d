@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-cam"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T20:55:20Z"
 concept_id: _dependencies/cargo/oxide-geo_9
 language: manifest

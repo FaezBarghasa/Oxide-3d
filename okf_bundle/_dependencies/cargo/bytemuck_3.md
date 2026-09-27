@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-backend-metal"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T21:05:41Z"
 concept_id: _dependencies/cargo/bytemuck_3
 language: manifest

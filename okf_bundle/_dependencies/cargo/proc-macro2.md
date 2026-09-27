@@ -10,9 +10,9 @@ tags:
   - "module:Cargo.lock"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "version:1.0.107"
   - "ecosystem:cargo"
   - "manifest:Cargo.lock"
+  - "version:1.0.107"
 timestamp: "2026-09-10T11:37:38Z"
 concept_id: _dependencies/cargo/proc-macro2
 language: manifest

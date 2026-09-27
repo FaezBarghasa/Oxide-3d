@@ -10,9 +10,9 @@ tags:
   - "module:Cargo.lock"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "version:6.0.0"
   - "ecosystem:cargo"
   - "manifest:Cargo.lock"
+  - "version:6.0.0"
 timestamp: "2026-09-10T11:37:38Z"
 concept_id: _dependencies/cargo/directories
 language: manifest

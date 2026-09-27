@@ -11,8 +11,8 @@ tags:
   - "git:branch:master"
   - "git:repo:Oxide-3d"
   - "ecosystem:cargo"
-  - "version:48.0.1"
   - "manifest:Cargo.lock"
+  - "version:48.0.1"
 timestamp: "2026-09-10T11:37:38Z"
 concept_id: _dependencies/cargo/wiggle-generate
 language: manifest

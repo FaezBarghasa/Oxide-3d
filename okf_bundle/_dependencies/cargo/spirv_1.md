@@ -10,8 +10,8 @@ tags:
   - "module:Cargo.lock"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "ecosystem:cargo"
   - "version:0.4.0+sdk-1.4.341.0"
+  - "ecosystem:cargo"
   - "manifest:Cargo.lock"
 timestamp: "2026-09-10T11:37:38Z"
 concept_id: _dependencies/cargo/spirv_1

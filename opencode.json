@@ -1,0 +1,14 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "okf-generator": {
+      "type": "local",
+      "command": [
+        "/home/jrad/.local/bin/okf",
+        "mcp",
+        "/home/jrad/RustroverProjects/Oxide-3d/okf_bundle"
+      ],
+      "enabled": true
+    }
+  }
+}

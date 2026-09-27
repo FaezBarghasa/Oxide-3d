@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-geo-ops"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-10T08:59:18Z"
 concept_id: _dependencies/cargo/faer_3
 language: manifest

@@ -11,8 +11,8 @@ tags:
   - "domain:oxide-persist"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T20:52:12Z"
 concept_id: _dependencies/cargo/tracing_19
 language: manifest

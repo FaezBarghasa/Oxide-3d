@@ -10,9 +10,9 @@ tags:
   - "module:Cargo.lock"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "version:4.5.1"
   - "ecosystem:cargo"
   - "manifest:Cargo.lock"
+  - "version:4.5.1"
 timestamp: "2026-09-10T11:37:38Z"
 concept_id: _dependencies/cargo/rapidhash
 language: manifest

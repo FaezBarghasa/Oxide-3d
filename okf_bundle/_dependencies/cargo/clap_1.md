@@ -11,8 +11,8 @@ tags:
   - "domain:xtask"
   - "git:branch:master"
   - "git:repo:Oxide-3d"
-  - "manifest:Cargo.toml"
   - "ecosystem:cargo"
+  - "manifest:Cargo.toml"
 timestamp: "2026-09-08T20:59:07Z"
 concept_id: _dependencies/cargo/clap_1
 language: manifest
